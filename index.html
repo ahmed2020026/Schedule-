@@ -218,6 +218,14 @@
   }
   .reset-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(26,58,42,0.35); }
   .reset-btn:active { transform: translateY(0); }
+  .reset-btn:disabled {
+    background: #ccc;
+    color: #888;
+    cursor: not-allowed;
+    box-shadow: none;
+    transform: none;
+  }
+  .reset-btn:disabled:hover { transform: none; box-shadow: none; }
 
 
 </style>
@@ -318,7 +326,7 @@
       <div class="activity-row" id="t9">
         <span class="activity-emoji">📖</span>
         <div class="activity-info"><div class="activity-name">قراءة سورة الواقعة</div><div class="activity-type type-قراءة">قراءة</div></div>
-        <span class="activity-time">بعد الظهر</span>
+        <span class="activity-time">2:10 – 2:45</span>
         <button class="done-btn" onclick="toggle('t9')">✓</button>
       </div>
       <div class="activity-row" id="t10">
@@ -407,7 +415,8 @@
 
 <!-- Reset Button -->
 <div class="reset-wrap">
-  <button class="reset-btn" onclick="resetAll()"> ابدأ يوم جديد</button>
+  <button class="reset-btn" id="resetBtn" onclick="resetAll()">🔄 Reset — ابدأ يوم جديد</button>
+  <p id="resetLockMsg" style="margin-top:10px;font-family:Cairo,sans-serif;font-size:0.88rem;color:#aaa;display:none;">🔒 متاح بعد الساعة 10 بالليل</p>
 </div>
 
 <script>
@@ -434,6 +443,7 @@
     if (!done.includes(id)) done.push(id);
     saveState(done);
     updateProgress();
+    checkResetLock();
   }
 
   function updateProgress() {
@@ -514,8 +524,15 @@
   }
 
   function resetAll() {
+    const now = new Date();
+    const hour = now.getHours();
     const done = loadState();
     const todayCount = done.filter(id => ALL_TASKS.includes(id)).length;
+    const allDone = todayCount === ALL_TASKS.length;
+    if (hour < 22 && !allDone) {
+      showLocked(hour);
+      return;
+    }
     const yest = loadYesterday();
     const yesterdayCount = yest ? yest.count : null;
     saveYesterday(todayCount, ALL_TASKS.length);
@@ -529,11 +546,51 @@
     renderYesterday();
   }
 
+  function showLocked(hour) {
+    const remaining = 22 - hour;
+    const msgs = [
+      'اليوم لسه مخلصش! 🕙\nالـ Reset متاح بعد الساعة 10 بالليل.',
+      'صبر! 😅\nفاضل ' + remaining + ' ساعة على نهاية اليوم.',
+      'أنهي يومك الأول! 💪\nالـ Reset هيفتح الساعة 10 مساءً.',
+    ];
+    const msg = msgs[Math.floor(Math.random() * msgs.length)];
+    document.getElementById('resultEmojis').textContent = '🔒⏳🔒';
+    document.getElementById('resultTitle').textContent  = 'مش وقته!';
+    document.getElementById('resultSub').innerHTML = msg.replace(/\n/g,'<br>');
+    document.getElementById('resultScore').textContent = 'الـ Reset بيفتح الساعة 10:00 مساءً';
+    document.getElementById('resultCard').style.background = '#f3f0ff';
+    const popup = document.getElementById('resultPopup');
+    popup.style.display = 'flex';
+    // override close button to just close without reset
+    document.querySelector('#resultPopup button').onclick = closePopup;
+  }
+
+  function checkResetLock() {
+    const now = new Date();
+    const hour = now.getHours();
+    const done = loadState();
+    const count = done.filter(id => ALL_TASKS.includes(id)).length;
+    const allDone = count === ALL_TASKS.length;
+    const afterTen = hour >= 22;
+    const unlocked = allDone || afterTen;
+    const btn = document.getElementById('resetBtn');
+    const msg = document.getElementById('resetLockMsg');
+    btn.disabled = !unlocked;
+    msg.style.display = unlocked ? 'none' : 'block';
+    if (unlocked && allDone && !afterTen) {
+      msg.style.display = 'none';
+    }
+  }
+
+  // re-check every minute
+  setInterval(checkResetLock, 60000);
+
   window.onload = function() {
     const done = loadState();
     done.forEach(id => { const row = document.getElementById(id); if (row) row.classList.add('done'); });
     updateProgress();
     renderYesterday();
+    checkResetLock();
   };
 </script>
 </body>
