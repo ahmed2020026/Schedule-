@@ -189,7 +189,7 @@
   .notes-header h3 { color: var(--gold-light); font-size: 1.2rem; font-weight: 900; }
   .notes-body { padding: 16px 24px; }
   .note-item {
-    display: flex; align-items: flex-start; gap: 12px;
+    display: flex; align-items: center; gap: 12px;
     padding: 10px 0; border-bottom: 1px solid #f0ede8; font-size: 0.92rem;
   }
   .note-item:last-child { border-bottom: none; }
@@ -245,7 +245,7 @@
 <!-- Chart Toggle Button -->
 <div style="max-width:720px;margin:0 auto 14px;text-align:center;">
   <button onclick="toggleChart()" id="chartToggleBtn" style="background:none;border:2px solid #2d6a4f;color:#2d6a4f;font-family:'Cairo',sans-serif;font-size:0.9rem;font-weight:700;padding:8px 24px;border-radius:30px;cursor:pointer;transition:all 0.2s;">
-    📊 تابع تقدمك
+     تابع تقدمك
   </button>
 </div>
 <div id="chartPanel" style="display:none;max-width:720px;margin:0 auto 20px;background:#fff;border-radius:20px;padding:24px;box-shadow:0 4px 20px rgba(0,0,0,0.1);">
@@ -292,7 +292,7 @@
   <div class="prayer-section">
     <div class="prayer-header">
       <div class="right"><span class="prayer-icon">🌅</span><span class="prayer-name">صلاة الضحى</span></div>
-      <span class="prayer-time">من 6:05</span>
+      <span class="prayer-time"> 6:05</span>
     </div>
     <div class="prayer-body">
       <div class="activity-row" id="t4">
@@ -338,7 +338,7 @@
       <div class="activity-row" id="t9">
         <span class="activity-emoji">📖</span>
         <div class="activity-info"><div class="activity-name">سورة الواقعة</div><div class="activity-type type-عبادة">عبادة</div></div>
-        <span class="activity-time">2:10 – 2:45</span>
+        <span class="activity-time">بعد الظهر</span>
         <button class="done-btn" onclick="toggle('t9')">✓</button>
       </div>
       <div class="activity-row" id="t10">
@@ -366,7 +366,7 @@
       <div class="activity-row" id="t12">
         <span class="activity-emoji">📖</span>
         <div class="activity-info"><div class="activity-name">سورة الرحمن</div><div class="activity-type type-عبادة">عبادة</div></div>
-        <span class="activity-time">4:30 – 5:30</span>
+        <span class="activity-time">بعد العصر</span>
         <button class="done-btn" onclick="toggle('t12')">✓</button>
       </div>
       <div class="activity-row" id="t13">
@@ -406,6 +406,7 @@
     <div class="notes-body">
       <div class="note-item"><span class="note-icon">💼</span><span class="note-text">التقديم على LinkedIn متاح طول اليوم.</span></div>
       <div class="note-item"><span class="note-icon">🌐</span><span class="note-text">التقديم في مواقع الـ freelance متاح طول اليوم.</span></div>
+      <div class="note-item"><span class="note-icon">🍶</span><span class="note-text">شرب ٢ لتر ماء علي الاقل يوميا</span></div>
       <div class="note-item"><span class="note-icon">🚫</span><span class="note-text">ممنوع scrolling نهائي — ولو هفتح احسب قد ايه من الوقت واعمل ادهم ضغط.</span></div>
       <div class="note-item"><span class="note-icon">🕌</span><span class="note-text">كن في المسجد قبل الإقامة.</span></div>
       <div class="note-item"><span class="note-icon">👥</span><span class="note-text">لو حسيت إنك مش هتقدر تكمل، قبل ما تاخد أي قرار بص لابوك وامك.</span></div>
@@ -427,15 +428,11 @@
 
 <!-- Reset Button -->
 <div class="reset-wrap">
-  <button class="reset-btn" id="resetBtn" onclick="resetAll()">✅ إنهاء وبداية يوم جديد</button>
+  <button class="reset-btn" id="resetBtn" onclick="resetAll()"> إنهاء وبداية يوم جديد</button>
   <p id="resetLockMsg" style="margin-top:10px;font-family:Cairo,sans-serif;font-size:0.88rem;color:#aaa;display:none;">🔒 متاح بعد الساعة 10 بالليل</p>
-  <p style="margin-top:18px;">
-    <button onclick="clearAllData()" style="background:none;border:none;font-family:'Cairo',sans-serif;font-size:0.8rem;color:#bbb;cursor:pointer;text-decoration:underline;">🗑️ مسح كل البيانات والبدء من الصفر</button>
-  </p>
 </div>
 
 <script>
-  localStorage.clear()
   const ALL_TASKS = ['t1','t2','t3','t4','t5','t6','t7','t8','t9','t10','t11','t12','t13','t14','t15'];
 
   function loadState() {
@@ -700,21 +697,6 @@
         }
       }
     });
-  }
-
-  function clearAllData() {
-    if (!confirm('هتمسح كل البيانات والتاريخ — متأكد؟')) return;
-    localStorage.removeItem('schedule_done');
-    localStorage.removeItem('schedule_yesterday');
-    localStorage.removeItem('schedule_history');
-    localStorage.removeItem('reset_done_today');
-    ALL_TASKS.forEach(id => {
-      const row = document.getElementById(id);
-      if (row) row.classList.remove('done');
-    });
-    updateProgress();
-    renderYesterday();
-    checkResetLock();
   }
 
   window.onload = function() {
