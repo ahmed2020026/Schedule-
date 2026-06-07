@@ -189,7 +189,7 @@
   .notes-header h3 { color: var(--gold-light); font-size: 1.2rem; font-weight: 900; }
   .notes-body { padding: 16px 24px; }
   .note-item {
-    display: flex; align-items: center; gap: 12px;
+    display: flex; align-items: flex-start; gap: 12px;
     padding: 10px 0; border-bottom: 1px solid #f0ede8; font-size: 0.92rem;
   }
   .note-item:last-child { border-bottom: none; }
@@ -229,6 +229,7 @@
 
 
 </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 </head>
 <body>
 
@@ -241,6 +242,17 @@
   <span id="yesterdayText" style="color:#f9c74f; font-size:1rem; font-weight:700; font-family:'Cairo',sans-serif;"></span>
 </div>
 
+<!-- Chart Toggle Button -->
+<div style="max-width:720px;margin:0 auto 14px;text-align:center;">
+  <button onclick="toggleChart()" id="chartToggleBtn" style="background:none;border:2px solid #2d6a4f;color:#2d6a4f;font-family:'Cairo',sans-serif;font-size:0.9rem;font-weight:700;padding:8px 24px;border-radius:30px;cursor:pointer;transition:all 0.2s;">
+    📊 تابع تقدمك
+  </button>
+</div>
+<div id="chartPanel" style="display:none;max-width:720px;margin:0 auto 20px;background:#fff;border-radius:20px;padding:24px;box-shadow:0 4px 20px rgba(0,0,0,0.1);">
+  <h3 style="font-family:'Cairo',sans-serif;font-weight:900;color:#1a3a2a;margin-bottom:16px;font-size:1.1rem;text-align:center;">آخر 10 أيام 📅</h3>
+  <canvas id="progressChart" height="200"></canvas>
+  <p id="chartEmpty" style="text-align:center;color:#aaa;font-family:'Cairo',sans-serif;font-size:0.9rem;display:none;">مفيش بيانات لسه — ابدأ يومك! 🌱</p>
+</div>
 <div class="progress-wrap" style="max-width:720px;margin:0 auto 6px;">
   <div class="progress-bar" id="progressBar"></div>
 </div>
@@ -280,7 +292,7 @@
   <div class="prayer-section">
     <div class="prayer-header">
       <div class="right"><span class="prayer-icon">🌅</span><span class="prayer-name">صلاة الضحى</span></div>
-      <span class="prayer-time"> 6:05</span>
+      <span class="prayer-time">من 6:05</span>
     </div>
     <div class="prayer-body">
       <div class="activity-row" id="t4">
@@ -326,7 +338,7 @@
       <div class="activity-row" id="t9">
         <span class="activity-emoji">📖</span>
         <div class="activity-info"><div class="activity-name">سورة الواقعة</div><div class="activity-type type-عبادة">عبادة</div></div>
-        <span class="activity-time">بعد الظهر </span>
+        <span class="activity-time">2:10 – 2:45</span>
         <button class="done-btn" onclick="toggle('t9')">✓</button>
       </div>
       <div class="activity-row" id="t10">
@@ -354,7 +366,7 @@
       <div class="activity-row" id="t12">
         <span class="activity-emoji">📖</span>
         <div class="activity-info"><div class="activity-name">سورة الرحمن</div><div class="activity-type type-عبادة">عبادة</div></div>
-        <span class="activity-time">بعد العصر</span>
+        <span class="activity-time">4:30 – 5:30</span>
         <button class="done-btn" onclick="toggle('t12')">✓</button>
       </div>
       <div class="activity-row" id="t13">
@@ -396,7 +408,6 @@
       <div class="note-item"><span class="note-icon">🌐</span><span class="note-text">التقديم في مواقع الـ freelance متاح طول اليوم.</span></div>
       <div class="note-item"><span class="note-icon">🚫</span><span class="note-text">ممنوع scrolling نهائي — ولو هفتح احسب قد ايه من الوقت واعمل ادهم ضغط.</span></div>
       <div class="note-item"><span class="note-icon">🕌</span><span class="note-text">كن في المسجد قبل الإقامة.</span></div>
-      <div class="note-item"><span class="note-icon">🍶</span><span class="note-text">شرب ٢ لتر ماء يوميا  </span></div>
       <div class="note-item"><span class="note-icon">👥</span><span class="note-text">لو حسيت إنك مش هتقدر تكمل، قبل ما تاخد أي قرار بص لابوك وامك.</span></div>
     </div>
   </div>
@@ -416,8 +427,11 @@
 
 <!-- Reset Button -->
 <div class="reset-wrap">
-  <button class="reset-btn" id="resetBtn" onclick="resetAll()">إنهاء وبداية يوم جديد</button>
+  <button class="reset-btn" id="resetBtn" onclick="resetAll()">✅ إنهاء وبداية يوم جديد</button>
   <p id="resetLockMsg" style="margin-top:10px;font-family:Cairo,sans-serif;font-size:0.88rem;color:#aaa;display:none;">🔒 متاح بعد الساعة 10 بالليل</p>
+  <p style="margin-top:18px;">
+    <button onclick="clearAllData()" style="background:none;border:none;font-family:'Cairo',sans-serif;font-size:0.8rem;color:#bbb;cursor:pointer;text-decoration:underline;">🗑️ مسح كل البيانات والبدء من الصفر</button>
+  </p>
 </div>
 
 <script>
@@ -434,6 +448,21 @@
   }
   function saveYesterday(count, total) {
     try { localStorage.setItem('schedule_yesterday', JSON.stringify({count, total})); } catch(e){}
+  }
+
+  function saveToHistory(count, total) {
+    try {
+      const history = JSON.parse(localStorage.getItem('schedule_history') || '[]');
+      const today = new Date();
+      const label = today.getDate() + '/' + (today.getMonth()+1);
+      history.push({ date: label, count, total });
+      if (history.length > 10) history.shift();
+      localStorage.setItem('schedule_history', JSON.stringify(history));
+    } catch(e){}
+  }
+
+  function loadHistory() {
+    try { return JSON.parse(localStorage.getItem('schedule_history') || '[]'); } catch(e) { return []; }
   }
 
   function toggle(id) {
@@ -537,6 +566,8 @@
     const yest = loadYesterday();
     const yesterdayCount = yest ? yest.count : null;
     saveYesterday(todayCount, ALL_TASKS.length);
+    saveToHistory(todayCount, ALL_TASKS.length);
+    localStorage.setItem('reset_done_today', 'true');
     showResult(todayCount, yesterdayCount);
     saveState([]);
     ALL_TASKS.forEach(id => {
@@ -545,6 +576,7 @@
     });
     updateProgress();
     renderYesterday();
+    checkResetLock();
   }
 
   function showLocked(hour) {
@@ -573,14 +605,13 @@
     const count = done.filter(id => ALL_TASKS.includes(id)).length;
     const allDone = count === ALL_TASKS.length;
     const afterTen = hour >= 22;
-    const unlocked = allDone || afterTen;
+    const alreadyReset = localStorage.getItem('reset_done_today') === 'true';
+    // unlocked if: all tasks done, OR after 10pm, OR already reset today (stay open till midnight)
+    const unlocked = allDone || afterTen || alreadyReset;
     const btn = document.getElementById('resetBtn');
     const msg = document.getElementById('resetLockMsg');
     btn.disabled = !unlocked;
     msg.style.display = unlocked ? 'none' : 'block';
-    if (unlocked && allDone && !afterTen) {
-      msg.style.display = 'none';
-    }
   }
 
   // re-check every minute + auto-reset at midnight
@@ -595,6 +626,8 @@
       const yest = loadYesterday();
       const yesterdayCount = yest ? yest.count : null;
       saveYesterday(todayCount, ALL_TASKS.length);
+      saveToHistory(todayCount, ALL_TASKS.length);
+      localStorage.removeItem('reset_done_today');
       saveState([]);
       ALL_TASKS.forEach(id => {
         const row = document.getElementById(id);
@@ -608,6 +641,81 @@
 
   setInterval(tickCheck, 60000);
 
+  let chartInstance = null;
+  let chartVisible = false;
+
+  function toggleChart() {
+    const panel = document.getElementById('chartPanel');
+    const btn   = document.getElementById('chartToggleBtn');
+    chartVisible = !chartVisible;
+    panel.style.display = chartVisible ? 'block' : 'none';
+    btn.style.background = chartVisible ? '#2d6a4f' : 'none';
+    btn.style.color       = chartVisible ? '#f9c74f' : '#2d6a4f';
+    if (chartVisible) renderChart();
+  }
+
+  function renderChart() {
+    const history = loadHistory();
+    const empty  = document.getElementById('chartEmpty');
+    const canvas = document.getElementById('progressChart');
+    if (history.length === 0) {
+      empty.style.display  = 'block';
+      canvas.style.display = 'none';
+      return;
+    }
+    empty.style.display  = 'none';
+    canvas.style.display = 'block';
+    const labels = history.map(d => d.date);
+    const values = history.map(d => Math.round((d.count / d.total) * 100));
+    if (chartInstance) chartInstance.destroy();
+    const ctx = canvas.getContext('2d');
+    chartInstance = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [{
+          label: 'الإنجاز %',
+          data: values,
+          backgroundColor: values.map(v =>
+            v === 100 ? '#2d6a4f' : v >= 70 ? '#52b788' : v >= 40 ? '#f9c74f' : '#e63946'
+          ),
+          borderColor: '#2d6a4f',
+          backgroundColor: 'rgba(82,183,136,0.15)',
+          fill: true,
+          tension: 0.4,
+          pointBackgroundColor: values.map(v =>
+            v === 100 ? '#2d6a4f' : v >= 70 ? '#52b788' : v >= 40 ? '#f9c74f' : '#e63946'
+          ),
+          pointRadius: 6,
+          pointHoverRadius: 8,
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => c.raw + '%' } } },
+        scales: {
+          y: { min: 0, max: 100, ticks: { callback: v => v + '%', font: { family: 'Cairo', size: 11 } }, grid: { color: '#f0ede8' } },
+          x: { ticks: { font: { family: 'Cairo', size: 12 } }, grid: { display: false } }
+        }
+      }
+    });
+  }
+
+  function clearAllData() {
+    if (!confirm('هتمسح كل البيانات والتاريخ — متأكد؟')) return;
+    localStorage.removeItem('schedule_done');
+    localStorage.removeItem('schedule_yesterday');
+    localStorage.removeItem('schedule_history');
+    localStorage.removeItem('reset_done_today');
+    ALL_TASKS.forEach(id => {
+      const row = document.getElementById(id);
+      if (row) row.classList.remove('done');
+    });
+    updateProgress();
+    renderYesterday();
+    checkResetLock();
+  }
+
   window.onload = function() {
     const done = loadState();
     done.forEach(id => { const row = document.getElementById(id); if (row) row.classList.add('done'); });
@@ -615,7 +723,6 @@
     renderYesterday();
     checkResetLock();
   };
- 
 </script>
 </body>
 </html>
