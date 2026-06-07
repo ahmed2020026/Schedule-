@@ -560,7 +560,7 @@
     const todayCount = done.filter(id => ALL_TASKS.includes(id)).length;
     const allDone = todayCount === ALL_TASKS.length;
     if (hour < 22 && !allDone) {
-      //showLocked(hour);
+      showLocked(hour);
       return;
     }
     const yest = loadYesterday();
