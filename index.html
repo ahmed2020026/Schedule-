@@ -151,20 +151,15 @@
     flex-shrink: 0;
     width: 36px; height: 36px;
     border-radius: 50%;
-    border: 2.5px solid #d0ccc5;
+    border: none;
     background: transparent;
     cursor: pointer;
     display: flex; align-items: center; justify-content: center;
-    font-size: 1.1rem;
+    font-size: 1.4rem;
     transition: all 0.2s;
-    color: transparent;
+    line-height: 1;
   }
-  .done-btn:hover { border-color: var(--green-light); background: rgba(82,183,136,0.08); }
-  .activity-row.done .done-btn {
-    background: var(--green);
-    border-color: var(--green);
-    color: white;
-  }
+  .done-btn:hover { transform: scale(1.15); }
 
   /* Type colors */
   .type-عبادة  { color: var(--green); }
@@ -189,43 +184,14 @@
   .notes-header h3 { color: var(--gold-light); font-size: 1.2rem; font-weight: 900; }
   .notes-body { padding: 16px 24px; }
   .note-item {
-    display: flex; align-items: center; gap: 12px;
+    display: flex; align-items: flex-start; gap: 12px;
     padding: 10px 0; border-bottom: 1px solid #f0ede8; font-size: 0.92rem;
   }
   .note-item:last-child { border-bottom: none; }
   .note-icon { font-size: 1.2rem; min-width: 24px; }
   .note-text { color: var(--text); line-height: 1.6; }
 
-  /* ── Reset Button ── */
-  .reset-wrap {
-    max-width: 720px;
-    margin: 36px auto 0;
-    text-align: center;
-  }
-  .reset-btn {
-    background: var(--prayer-bg);
-    color: var(--gold-light);
-    border: none;
-    padding: 16px 48px;
-    border-radius: 50px;
-    font-family: 'Cairo', sans-serif;
-    font-size: 1.1rem;
-    font-weight: 900;
-    cursor: pointer;
-    box-shadow: 0 6px 24px rgba(26,58,42,0.25);
-    transition: all 0.2s;
-    letter-spacing: 0.3px;
-  }
-  .reset-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(26,58,42,0.35); }
-  .reset-btn:active { transform: translateY(0); }
-  .reset-btn:disabled {
-    background: #ccc;
-    color: #888;
-    cursor: not-allowed;
-    box-shadow: none;
-    transform: none;
-  }
-  .reset-btn:disabled:hover { transform: none; box-shadow: none; }
+
 
 
 </style>
@@ -245,7 +211,7 @@
 <!-- Chart Toggle Button -->
 <div style="max-width:720px;margin:0 auto 14px;text-align:center;">
   <button onclick="toggleChart()" id="chartToggleBtn" style="background:none;border:2px solid #2d6a4f;color:#2d6a4f;font-family:'Cairo',sans-serif;font-size:0.9rem;font-weight:700;padding:8px 24px;border-radius:30px;cursor:pointer;transition:all 0.2s;">
-     تابع تقدمك
+    📊 تابع تقدمك
   </button>
 </div>
 <div id="chartPanel" style="display:none;max-width:720px;margin:0 auto 20px;background:#fff;border-radius:20px;padding:24px;box-shadow:0 4px 20px rgba(0,0,0,0.1);">
@@ -271,19 +237,19 @@
         <span class="activity-emoji">📖</span>
         <div class="activity-info"><div class="activity-name">سورة يس</div><div class="activity-type type-عبادة">عبادة</div></div>
         <span class="activity-time flexible">بعد الفجر</span>
-        <button class="done-btn" onclick="toggle('t1')">✓</button>
+        <button class="done-btn" onclick="toggle('t1')">🔓</button>
       </div>
       <div class="activity-row" id="t2">
         <span class="activity-emoji">🤲</span>
         <div class="activity-info"><div class="activity-name">أذكار الصباح</div><div class="activity-type type-عبادة">عبادة</div></div>
         <span class="activity-time flexible">بعد الفجر</span>
-        <button class="done-btn" onclick="toggle('t2')">✓</button>
+        <button class="done-btn" onclick="toggle('t2')">🔓</button>
       </div>
       <div class="activity-row" id="t3">
         <span class="activity-emoji">📗</span>
         <div class="activity-info"><div class="activity-name">10 صفحات من القرآن (الورد بتاعنا)</div><div class="activity-type type-عبادة">عبادة</div></div>
         <span class="activity-time flexible">بعد الفجر</span>
-        <button class="done-btn" onclick="toggle('t3')">✓</button>
+        <button class="done-btn" onclick="toggle('t3')">🔓</button>
       </div>
     </div>
   </div>
@@ -292,38 +258,38 @@
   <div class="prayer-section">
     <div class="prayer-header">
       <div class="right"><span class="prayer-icon">🌅</span><span class="prayer-name">صلاة الضحى</span></div>
-      <span class="prayer-time"> 6:05</span>
+      <span class="prayer-time">من 6:05</span>
     </div>
     <div class="prayer-body">
       <div class="activity-row" id="t4">
         <span class="activity-emoji">😴</span>
         <div class="activity-info"><div class="activity-name">قيلولة</div><div class="activity-type type-راحة">راحة ونوم</div></div>
         <span class="activity-time">6:05 – 8:30</span>
-        <button class="done-btn" onclick="toggle('t4')">✓</button>
+        <button class="done-btn" onclick="toggle('t4')">🔓</button>
       </div>
       <div class="activity-row" id="t5">
         <span class="activity-emoji">🚿</span>
         <div class="activity-info"><div class="activity-name">دش ملء بارد</div><div class="activity-type type-استحمام">استحمام</div></div>
         <span class="activity-time">8:30 – 9:00</span>
-        <button class="done-btn" onclick="toggle('t5')">✓</button>
+        <button class="done-btn" onclick="toggle('t5')">🔓</button>
       </div>
       <div class="activity-row" id="t6">
         <span class="activity-emoji">🍽️</span>
         <div class="activity-info"><div class="activity-name">إفطار</div><div class="activity-type type-أكل">أكل</div></div>
         <span class="activity-time">9:00 – 9:30</span>
-        <button class="done-btn" onclick="toggle('t6')">✓</button>
+        <button class="done-btn" onclick="toggle('t6')">🔓</button>
       </div>
       <div class="activity-row" id="t7">
         <span class="activity-emoji">💻</span>
         <div class="activity-info"><div class="activity-name">w3school</div><div class="activity-type type-دراسة">دراسة</div></div>
         <span class="activity-time">9:45 – 11:30</span>
-        <button class="done-btn" onclick="toggle('t7')">✓</button>
+        <button class="done-btn" onclick="toggle('t7')">🔓</button>
       </div>
       <div class="activity-row" id="t8">
         <span class="activity-emoji">🏋️</span>
         <div class="activity-info"><div class="activity-name">تمارين</div><div class="activity-type type-تمارين">تمارين</div></div>
         <span class="activity-time">11:45 – 12:30</span>
-        <button class="done-btn" onclick="toggle('t8')">✓</button>
+        <button class="done-btn" onclick="toggle('t8')">🔓</button>
       </div>
     </div>
   </div>
@@ -338,20 +304,20 @@
       <div class="activity-row" id="t9">
         <span class="activity-emoji">📖</span>
         <div class="activity-info"><div class="activity-name">سورة الواقعة</div><div class="activity-type type-عبادة">عبادة</div></div>
-        <span class="activity-time">بعد الظهر</span>
-        <button class="done-btn" onclick="toggle('t9')">✓</button>
+        <span class="activity-time">2:10 – 2:45</span>
+        <button class="done-btn" onclick="toggle('t9')">🔓</button>
       </div>
       <div class="activity-row" id="t10">
         <span class="activity-emoji">🎧</span>
         <div class="activity-info"><div class="activity-name">استماع English (00:30)</div><div class="activity-type type-تطوير">تطوير ذات</div></div>
         <span class="activity-time">2:10 – 2:45</span>
-        <button class="done-btn" onclick="toggle('t10')">✓</button>
+        <button class="done-btn" onclick="toggle('t10')">🔓</button>
       </div>
       <div class="activity-row" id="t11">
         <span class="activity-emoji">📚</span>
         <div class="activity-info"><div class="activity-name">AUC</div><div class="activity-type type-دراسة">دراسة</div></div>
         <span class="activity-time">3:00 – 4:00</span>
-        <button class="done-btn" onclick="toggle('t11')">✓</button>
+        <button class="done-btn" onclick="toggle('t11')">🔓</button>
       </div>
     </div>
   </div>
@@ -366,14 +332,14 @@
       <div class="activity-row" id="t12">
         <span class="activity-emoji">📖</span>
         <div class="activity-info"><div class="activity-name">سورة الرحمن</div><div class="activity-type type-عبادة">عبادة</div></div>
-        <span class="activity-time">بعد العصر</span>
-        <button class="done-btn" onclick="toggle('t12')">✓</button>
+        <span class="activity-time">4:30 – 5:30</span>
+        <button class="done-btn" onclick="toggle('t12')">🔓</button>
       </div>
       <div class="activity-row" id="t13">
         <span class="activity-emoji">💬</span>
         <div class="activity-info"><div class="activity-name">أسئلة Interview</div><div class="activity-type type-تطوير">تطوير ذات</div></div>
         <span class="activity-time">5:45 – 6:30</span>
-        <button class="done-btn" onclick="toggle('t13')">✓</button>
+        <button class="done-btn" onclick="toggle('t13')">🔓</button>
       </div>
     </div>
   </div>
@@ -389,13 +355,13 @@
         <span class="activity-emoji">📖</span>
         <div class="activity-info"><div class="activity-name">سورة الدخان</div><div class="activity-type type-عبادة">عبادة</div></div>
         <span class="activity-time flexible">بعد المغرب</span>
-        <button class="done-btn" onclick="toggle('t14')">✓</button>
+        <button class="done-btn" onclick="toggle('t14')">🔓</button>
       </div>
       <div class="activity-row" id="t15">
         <span class="activity-emoji">🤲</span>
         <div class="activity-info"><div class="activity-name">أذكار المساء</div><div class="activity-type type-عبادة">عبادة</div></div>
         <span class="activity-time flexible">بعد المغرب</span>
-        <button class="done-btn" onclick="toggle('t15')">✓</button>
+        <button class="done-btn" onclick="toggle('t15')">🔓</button>
       </div>
     </div>
   </div>
@@ -406,7 +372,6 @@
     <div class="notes-body">
       <div class="note-item"><span class="note-icon">💼</span><span class="note-text">التقديم على LinkedIn متاح طول اليوم.</span></div>
       <div class="note-item"><span class="note-icon">🌐</span><span class="note-text">التقديم في مواقع الـ freelance متاح طول اليوم.</span></div>
-      <div class="note-item"><span class="note-icon">🍶</span><span class="note-text">شرب ٢ لتر ماء علي الاقل يوميا</span></div>
       <div class="note-item"><span class="note-icon">🚫</span><span class="note-text">ممنوع scrolling نهائي — ولو هفتح احسب قد ايه من الوقت واعمل ادهم ضغط.</span></div>
       <div class="note-item"><span class="note-icon">🕌</span><span class="note-text">كن في المسجد قبل الإقامة.</span></div>
       <div class="note-item"><span class="note-icon">👥</span><span class="note-text">لو حسيت إنك مش هتقدر تكمل، قبل ما تاخد أي قرار بص لابوك وامك.</span></div>
@@ -424,12 +389,6 @@
     <div id="resultScore" style="font-size:0.85rem;font-weight:700;color:#999;margin-bottom:28px;"></div>
     <button onclick="closePopup()" style="background:#1a3a2a;color:#f9c74f;border:none;padding:14px 44px;border-radius:50px;font-family:Cairo,sans-serif;font-size:1rem;font-weight:900;cursor:pointer;width:100%;">يلا نبدأ يوم جديد 💪</button>
   </div>
-</div>
-
-<!-- Reset Button -->
-<div class="reset-wrap">
-  <button class="reset-btn" id="resetBtn" onclick="resetAll()"> إنهاء وبداية يوم جديد</button>
-  <p id="resetLockMsg" style="margin-top:10px;font-family:Cairo,sans-serif;font-size:0.88rem;color:#aaa;display:none;">🔒 متاح بعد الساعة 10 بالليل</p>
 </div>
 
 <script>
@@ -465,10 +424,18 @@
 
   function toggle(id) {
     const row = document.getElementById(id);
-    if (row.classList.contains('done')) return;
-    row.classList.add('done');
+    const btn = row.querySelector('.done-btn');
     const done = loadState();
-    if (!done.includes(id)) done.push(id);
+    if (row.classList.contains('done')) {
+      row.classList.remove('done');
+      btn.textContent = '🔓';
+      const idx = done.indexOf(id);
+      if (idx > -1) done.splice(idx, 1);
+    } else {
+      row.classList.add('done');
+      btn.textContent = '🔒';
+      if (!done.includes(id)) done.push(id);
+    }
     saveState(done);
     updateProgress();
     checkResetLock();
@@ -557,10 +524,6 @@
     const done = loadState();
     const todayCount = done.filter(id => ALL_TASKS.includes(id)).length;
     const allDone = todayCount === ALL_TASKS.length;
-    if (hour < 22 && !allDone) {
-      showLocked(hour);
-      return;
-    }
     const yest = loadYesterday();
     const yesterdayCount = yest ? yest.count : null;
     saveYesterday(todayCount, ALL_TASKS.length);
@@ -570,7 +533,11 @@
     saveState([]);
     ALL_TASKS.forEach(id => {
       const row = document.getElementById(id);
-      if (row) row.classList.remove('done');
+      if (row) {
+        row.classList.remove('done');
+        const btn = row.querySelector('.done-btn');
+        if (btn) btn.textContent = '🔓';
+      }
     });
     updateProgress();
     renderYesterday();
@@ -596,21 +563,7 @@
     document.querySelector('#resultPopup button').onclick = closePopup;
   }
 
-  function checkResetLock() {
-    const now = new Date();
-    const hour = now.getHours();
-    const done = loadState();
-    const count = done.filter(id => ALL_TASKS.includes(id)).length;
-    const allDone = count === ALL_TASKS.length;
-    const afterTen = hour >= 22;
-    const alreadyReset = localStorage.getItem('reset_done_today') === 'true';
-    // unlocked if: all tasks done, OR after 10pm, OR already reset today (stay open till midnight)
-    const unlocked = allDone || afterTen || alreadyReset;
-    const btn = document.getElementById('resetBtn');
-    const msg = document.getElementById('resetLockMsg');
-    btn.disabled = !unlocked;
-    msg.style.display = unlocked ? 'none' : 'block';
-  }
+  function checkResetLock() { /* no btn */ }
 
   // re-check every minute + auto-reset at midnight
   function tickCheck() {
@@ -699,12 +652,57 @@
     });
   }
 
-  window.onload = function() {
-    const done = loadState();
-    done.forEach(id => { const row = document.getElementById(id); if (row) row.classList.add('done'); });
+  function clearAllData() {
+    if (!confirm('هتمسح كل البيانات والتاريخ — متأكد؟')) return;
+    localStorage.removeItem('schedule_done');
+    localStorage.removeItem('schedule_yesterday');
+    localStorage.removeItem('schedule_history');
+    localStorage.removeItem('reset_done_today');
+    ALL_TASKS.forEach(id => {
+      const row = document.getElementById(id);
+      if (row) {
+        row.classList.remove('done');
+        const btn = row.querySelector('.done-btn');
+        if (btn) btn.textContent = '🔓';
+      }
+    });
     updateProgress();
     renderYesterday();
     checkResetLock();
+  }
+
+  function seedDemoHistory() {
+    const existing = loadHistory();
+    if (existing.length > 0) return; // لو في بيانات فعلية متحطش demo
+    const demo = [
+      { date: '29/5', count: 8,  total: 15 },
+      { date: '30/5', count: 12, total: 15 },
+      { date: '31/5', count: 10, total: 15 },
+      { date: '1/6',  count: 15, total: 15 },
+      { date: '2/6',  count: 7,  total: 15 },
+      { date: '3/6',  count: 13, total: 15 },
+      { date: '4/6',  count: 11, total: 15 },
+      { date: '5/6',  count: 15, total: 15 },
+      { date: '6/6',  count: 9,  total: 15 },
+      { date: '7/6',  count: 14, total: 15 },
+    ];
+    localStorage.setItem('schedule_history', JSON.stringify(demo));
+  }
+
+  window.onload = function() {
+    const done = loadState();
+    done.forEach(id => {
+      const row = document.getElementById(id);
+      if (row) {
+        row.classList.add('done');
+        const btn = row.querySelector('.done-btn');
+        if (btn) btn.textContent = '🔒';
+      }
+    });
+    updateProgress();
+    renderYesterday();
+    checkResetLock();
+    seedDemoHistory();
   };
 </script>
 </body>
