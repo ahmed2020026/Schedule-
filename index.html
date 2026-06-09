@@ -410,9 +410,7 @@
   function saveToHistory(count, total) {
     try {
       const history = JSON.parse(localStorage.getItem('schedule_history') || '[]');
-      const today = new Date();
-      const label = today.getDate() + '/' + (today.getMonth()+1);
-      history.push({ date: label, count, total });
+      history.push({ count, total });
       if (history.length > 10) history.shift();
       localStorage.setItem('schedule_history', JSON.stringify(history));
     } catch(e){}
@@ -631,7 +629,7 @@
     }
     empty.style.display  = 'none';
     canvas.style.display = 'block';
-    const labels = history.map(d => d.date);
+    const labels = history.map((_, i) => 'يوم ' + (i + 1));
     const values = history.map(d => Math.round((d.count / d.total) * 100));
     if (chartInstance) chartInstance.destroy();
     const ctx = canvas.getContext('2d');
