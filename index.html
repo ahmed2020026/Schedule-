@@ -258,7 +258,7 @@
   <div class="prayer-section">
     <div class="prayer-header">
       <div class="right"><span class="prayer-icon">🌅</span><span class="prayer-name">صلاة الضحى</span></div>
-      <span class="prayer-time"> 6:05</span>
+      <span class="prayer-time">من 6:05</span>
     </div>
     <div class="prayer-body">
       <div class="activity-row" id="t4">
@@ -304,7 +304,7 @@
       <div class="activity-row" id="t9">
         <span class="activity-emoji">📖</span>
         <div class="activity-info"><div class="activity-name">سورة الواقعة</div><div class="activity-type type-عبادة">عبادة</div></div>
-        <span class="activity-time">بعد الظهر</span>
+        <span class="activity-time">2:10 – 2:45</span>
         <button class="done-btn" onclick="toggle('t9')">🔓</button>
       </div>
       <div class="activity-row" id="t10">
@@ -332,7 +332,7 @@
       <div class="activity-row" id="t12">
         <span class="activity-emoji">📖</span>
         <div class="activity-info"><div class="activity-name">سورة الرحمن</div><div class="activity-type type-عبادة">عبادة</div></div>
-        <span class="activity-time">بعد العصر</span>
+        <span class="activity-time">4:30 – 5:30</span>
         <button class="done-btn" onclick="toggle('t12')">🔓</button>
       </div>
       <div class="activity-row" id="t13">
@@ -373,7 +373,6 @@
       <div class="note-item"><span class="note-icon">💼</span><span class="note-text">التقديم على LinkedIn متاح طول اليوم.</span></div>
       <div class="note-item"><span class="note-icon">🌐</span><span class="note-text">التقديم في مواقع الـ freelance متاح طول اليوم.</span></div>
       <div class="note-item"><span class="note-icon">🚫</span><span class="note-text">ممنوع scrolling نهائي — ولو هفتح احسب قد ايه من الوقت واعمل ادهم ضغط.</span></div>
-      <div class="note-item"><span class="note-icon">🍶</span><span class="note-text">شرب ٢ لتر ماء علي الاقل يوميا</span></div>
       <div class="note-item"><span class="note-icon">🕌</span><span class="note-text">كن في المسجد قبل الإقامة.</span></div>
       <div class="note-item"><span class="note-icon">👥</span><span class="note-text">لو حسيت إنك مش هتقدر تكمل، قبل ما تاخد أي قرار بص لابوك وامك.</span></div>
     </div>
@@ -567,27 +566,42 @@
   function checkResetLock() { /* no btn */ }
 
   // re-check every minute + auto-reset at midnight
+  function doAutoReset() {
+    const done = loadState();
+    const todayCount = done.filter(id => ALL_TASKS.includes(id)).length;
+    saveYesterday(todayCount, ALL_TASKS.length);
+    saveToHistory(todayCount, ALL_TASKS.length);
+    localStorage.removeItem('reset_done_today');
+    // save today's date so we know reset already happened
+    localStorage.setItem('last_reset_date', new Date().toDateString());
+    saveState([]);
+    ALL_TASKS.forEach(id => {
+      const row = document.getElementById(id);
+      if (row) {
+        row.classList.remove('done');
+        const btn = row.querySelector('.done-btn');
+        if (btn) btn.textContent = '🔓';
+      }
+    });
+    updateProgress();
+    renderYesterday();
+    checkResetLock();
+  }
+
+  function checkDayChange() {
+    const lastReset = localStorage.getItem('last_reset_date');
+    const today = new Date().toDateString();
+    if (lastReset !== today) {
+      // new day and no reset yet — do it now
+      doAutoReset();
+    }
+  }
+
   function tickCheck() {
     checkResetLock();
     const now = new Date();
-    // at midnight (00:00) auto-reset if user hasn't already
     if (now.getHours() === 0 && now.getMinutes() === 0) {
-      const done = loadState();
-      const todayCount = done.filter(id => ALL_TASKS.includes(id)).length;
-      // only auto-reset if there's something to save or clear
-      const yest = loadYesterday();
-      const yesterdayCount = yest ? yest.count : null;
-      saveYesterday(todayCount, ALL_TASKS.length);
-      saveToHistory(todayCount, ALL_TASKS.length);
-      localStorage.removeItem('reset_done_today');
-      saveState([]);
-      ALL_TASKS.forEach(id => {
-        const row = document.getElementById(id);
-        if (row) row.classList.remove('done');
-      });
-      updateProgress();
-      renderYesterday();
-      checkResetLock();
+      doAutoReset();
     }
   }
 
@@ -691,6 +705,7 @@
   }
 
   window.onload = function() {
+    checkDayChange(); // auto-reset if new day since last open
     const done = loadState();
     done.forEach(id => {
       const row = document.getElementById(id);
