@@ -194,6 +194,42 @@
 
 
 
+
+  .activity-row{
+    cursor:pointer;
+  }
+
+  .activity-row:active{
+    transform:scale(0.98);
+  }
+
+  .activity-row.done{
+    animation: taskDone 0.35s ease;
+  }
+
+  @keyframes taskDone{
+    0%{transform:scale(1);}
+    50%{transform:scale(1.03);}
+    100%{transform:scale(1);}
+  }
+
+
+.activity-row{
+    -webkit-tap-highlight-color: transparent;
+    outline:none;
+}
+
+.activity-row:focus,
+.activity-row:active,
+.done-btn:focus,
+.done-btn:active{
+    outline:none;
+}
+
+.done-btn{
+    -webkit-tap-highlight-color: transparent;
+}
+
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 </head>
@@ -237,19 +273,19 @@
         <span class="activity-emoji">📖</span>
         <div class="activity-info"><div class="activity-name">سورة يس</div><div class="activity-type type-عبادة">عبادة</div></div>
         <span class="activity-time flexible">بعد الفجر</span>
-        <button class="done-btn" onclick="toggle('t1')">🔓</button>
+        <button class="done-btn">🔓</button>
       </div>
       <div class="activity-row" id="t2">
         <span class="activity-emoji">🤲</span>
         <div class="activity-info"><div class="activity-name">أذكار الصباح</div><div class="activity-type type-عبادة">عبادة</div></div>
         <span class="activity-time flexible">بعد الفجر</span>
-        <button class="done-btn" onclick="toggle('t2')">🔓</button>
+        <button class="done-btn">🔓</button>
       </div>
       <div class="activity-row" id="t3">
         <span class="activity-emoji">📗</span>
         <div class="activity-info"><div class="activity-name">10 صفحات من القرآن (الورد بتاعنا)</div><div class="activity-type type-عبادة">عبادة</div></div>
         <span class="activity-time flexible">بعد الفجر</span>
-        <button class="done-btn" onclick="toggle('t3')">🔓</button>
+        <button class="done-btn">🔓</button>
       </div>
     </div>
   </div>
@@ -265,31 +301,31 @@
         <span class="activity-emoji">😴</span>
         <div class="activity-info"><div class="activity-name">قيلولة</div><div class="activity-type type-راحة">راحة ونوم</div></div>
         <span class="activity-time">6:05 – 8:30</span>
-        <button class="done-btn" onclick="toggle('t4')">🔓</button>
+        <button class="done-btn">🔓</button>
       </div>
       <div class="activity-row" id="t5">
         <span class="activity-emoji">🚿</span>
         <div class="activity-info"><div class="activity-name">دش ملء بارد</div><div class="activity-type type-استحمام">استحمام</div></div>
         <span class="activity-time">8:30 – 9:00</span>
-        <button class="done-btn" onclick="toggle('t5')">🔓</button>
+        <button class="done-btn">🔓</button>
       </div>
       <div class="activity-row" id="t6">
         <span class="activity-emoji">🍽️</span>
         <div class="activity-info"><div class="activity-name">إفطار</div><div class="activity-type type-أكل">أكل</div></div>
         <span class="activity-time">9:00 – 9:30</span>
-        <button class="done-btn" onclick="toggle('t6')">🔓</button>
+        <button class="done-btn">🔓</button>
       </div>
       <div class="activity-row" id="t7">
         <span class="activity-emoji">💻</span>
         <div class="activity-info"><div class="activity-name">w3school</div><div class="activity-type type-دراسة">دراسة</div></div>
         <span class="activity-time">9:45 – 11:30</span>
-        <button class="done-btn" onclick="toggle('t7')">🔓</button>
+        <button class="done-btn">🔓</button>
       </div>
       <div class="activity-row" id="t8">
         <span class="activity-emoji">🏋️</span>
         <div class="activity-info"><div class="activity-name">تمارين</div><div class="activity-type type-تمارين">تمارين</div></div>
         <span class="activity-time">11:45 – 12:30</span>
-        <button class="done-btn" onclick="toggle('t8')">🔓</button>
+        <button class="done-btn">🔓</button>
       </div>
     </div>
   </div>
@@ -305,19 +341,19 @@
         <span class="activity-emoji">📖</span>
         <div class="activity-info"><div class="activity-name">سورة الواقعة</div><div class="activity-type type-عبادة">عبادة</div></div>
         <span class="activity-time">بعد الظهر</span>
-        <button class="done-btn" onclick="toggle('t9')">🔓</button>
+        <button class="done-btn">🔓</button>
       </div>
       <div class="activity-row" id="t10">
         <span class="activity-emoji">🎧</span>
         <div class="activity-info"><div class="activity-name">استماع English (00:30)</div><div class="activity-type type-تطوير">تطوير ذات</div></div>
         <span class="activity-time">2:10 – 2:45</span>
-        <button class="done-btn" onclick="toggle('t10')">🔓</button>
+        <button class="done-btn">🔓</button>
       </div>
       <div class="activity-row" id="t11">
         <span class="activity-emoji">📚</span>
         <div class="activity-info"><div class="activity-name">AUC</div><div class="activity-type type-دراسة">دراسة</div></div>
         <span class="activity-time">3:00 – 4:00</span>
-        <button class="done-btn" onclick="toggle('t11')">🔓</button>
+        <button class="done-btn">🔓</button>
       </div>
     </div>
   </div>
@@ -333,13 +369,13 @@
         <span class="activity-emoji">📖</span>
         <div class="activity-info"><div class="activity-name">سورة الرحمن</div><div class="activity-type type-عبادة">عبادة</div></div>
         <span class="activity-time">بعد العصر</span>
-        <button class="done-btn" onclick="toggle('t12')">🔓</button>
+        <button class="done-btn">🔓</button>
       </div>
       <div class="activity-row" id="t13">
         <span class="activity-emoji">💬</span>
         <div class="activity-info"><div class="activity-name">أسئلة Interview</div><div class="activity-type type-تطوير">تطوير ذات</div></div>
         <span class="activity-time">5:45 – 6:30</span>
-        <button class="done-btn" onclick="toggle('t13')">🔓</button>
+        <button class="done-btn">🔓</button>
       </div>
     </div>
   </div>
@@ -355,13 +391,13 @@
         <span class="activity-emoji">📖</span>
         <div class="activity-info"><div class="activity-name">سورة الدخان</div><div class="activity-type type-عبادة">عبادة</div></div>
         <span class="activity-time flexible">بعد المغرب</span>
-        <button class="done-btn" onclick="toggle('t14')">🔓</button>
+        <button class="done-btn">🔓</button>
       </div>
       <div class="activity-row" id="t15">
         <span class="activity-emoji">🤲</span>
         <div class="activity-info"><div class="activity-name">أذكار المساء</div><div class="activity-type type-عبادة">عبادة</div></div>
         <span class="activity-time flexible">بعد المغرب</span>
-        <button class="done-btn" onclick="toggle('t15')">🔓</button>
+        <button class="done-btn">🔓</button>
       </div>
     </div>
   </div>
@@ -703,6 +739,13 @@
   }
 
   window.onload = function() {
+
+    document.querySelectorAll('.activity-row').forEach(row => {
+      row.addEventListener('click', function () {
+        toggle(this.id);
+      });
+    });
+
     checkDayChange(); // auto-reset if new day since last open
     const done = loadState();
     done.forEach(id => {
