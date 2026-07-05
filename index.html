@@ -5,404 +5,276 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>جدول الدراسة اليومي</title>
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
   :root {
-    --green: #2d6a4f;
-    --green-light: #52b788;
-    --gold: #d4a017;
-    --gold-light: #f9c74f;
-    --bg: #f8f5f0;
-    --white: #ffffff;
-    --text: #1a1a2e;
-    --text-muted: #555;
+    --green: #2d6a4f; --green-light: #52b788;
+    --gold: #d4a017; --gold-light: #f9c74f;
+    --bg: #f8f5f0; --white: #fff;
+    --text: #1a1a2e; --muted: #555;
     --prayer-bg: #1a3a2a;
     --shadow: 0 4px 20px rgba(0,0,0,0.1);
   }
-  * { margin: 0; padding: 0; box-sizing: border-box; }
+  * { margin:0; padding:0; box-sizing:border-box; }
   body {
-    font-family: 'Cairo', sans-serif;
-    background: var(--bg);
-    background-image:
-      radial-gradient(circle at 20% 20%, rgba(45,106,79,0.06) 0%, transparent 50%),
-      radial-gradient(circle at 80% 80%, rgba(212,160,23,0.06) 0%, transparent 50%);
-    min-height: 100vh;
-    padding: 30px 20px 60px;
-    color: var(--text);
+    font-family:'Cairo',sans-serif;
+    background:var(--bg);
+    min-height:100vh;
+    padding:30px 20px 60px;
+    color:var(--text);
   }
-  .page-title {
-    text-align: center;
-    font-size: 2.8rem;
-    font-weight: 900;
-    color: var(--prayer-bg);
-    margin-bottom: 8px;
-    letter-spacing: -1px;
-  }
-  .page-title span { color: var(--green-light); }
-  .page-subtitle {
-    text-align: center;
-    color: var(--text-muted);
-    font-size: 0.95rem;
-    margin-bottom: 16px;
-  }
+  .page-title { text-align:center; font-size:2.4rem; font-weight:900; color:var(--prayer-bg); margin-bottom:6px; }
+  .page-title span { color:var(--green-light); }
+  .page-subtitle { text-align:center; color:var(--muted); font-size:0.9rem; margin-bottom:16px; }
 
-  /* ── Progress Bar ── */
-  .progress-wrap {
-    max-width: 720px;
-    margin: 0 auto 32px;
-    background: #e8e3db;
-    border-radius: 30px;
-    height: 14px;
-    overflow: hidden;
-    position: relative;
-  }
-  .progress-bar {
-    height: 100%;
-    background: linear-gradient(90deg, var(--green-light), var(--green));
-    border-radius: 30px;
-    transition: width 0.4s ease;
-    width: 0%;
-  }
-  .progress-label {
-    text-align: center;
-    font-size: 0.82rem;
-    font-weight: 700;
-    color: var(--green);
-    margin-bottom: 28px;
-    max-width: 720px;
-    margin-left: auto;
-    margin-right: auto;
-  }
+  /* yesterday */
+  #yesterdayBanner { display:none; max-width:720px; margin:0 auto 16px; background:var(--prayer-bg); border-radius:14px; padding:12px 20px; justify-content:center; box-shadow:var(--shadow); }
+  #yesterdayText { color:var(--gold-light); font-size:0.95rem; font-weight:700; }
 
-  .container { max-width: 720px; margin: 0 auto; }
+  /* chart */
+  .chart-wrap { max-width:720px; margin:0 auto 14px; text-align:center; }
+  #chartToggleBtn { background:none; border:2px solid var(--green); color:var(--green); font-family:'Cairo',sans-serif; font-size:0.9rem; font-weight:700; padding:8px 24px; border-radius:30px; cursor:pointer; transition:all .2s; }
+  #chartPanel { display:none; max-width:720px; margin:0 auto 20px; background:#fff; border-radius:20px; padding:24px; box-shadow:var(--shadow); }
+  #chartPanel h3 { font-weight:900; color:var(--prayer-bg); margin-bottom:16px; font-size:1rem; text-align:center; }
 
-  /* ── Prayer Section ── */
-  .prayer-section {
-    margin-bottom: 28px;
-    border-radius: 20px;
-    overflow: hidden;
-    box-shadow: var(--shadow);
-    animation: fadeUp 0.5s ease both;
-  }
-  .prayer-section:nth-child(1) { animation-delay: 0.05s; }
-  .prayer-section:nth-child(2) { animation-delay: 0.15s; }
-  .prayer-section:nth-child(3) { animation-delay: 0.25s; }
-  .prayer-section:nth-child(4) { animation-delay: 0.35s; }
-  .prayer-section:nth-child(5) { animation-delay: 0.45s; }
-  @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(18px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
+  /* progress */
+  .progress-wrap { max-width:720px; margin:0 auto 6px; background:#e8e3db; border-radius:30px; height:14px; overflow:hidden; }
+  .progress-bar { height:100%; background:linear-gradient(90deg,var(--green-light),var(--green)); border-radius:30px; transition:width .4s ease; width:0%; }
+  .progress-label { text-align:center; font-size:0.82rem; font-weight:700; color:var(--green); margin-bottom:28px; }
 
-  .prayer-header {
-    background: var(--prayer-bg);
-    padding: 18px 24px;
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    justify-content: space-between;
-  }
-  .prayer-header .right { display: flex; align-items: center; gap: 14px; }
-  .prayer-icon { font-size: 2rem; line-height: 1; }
-  .prayer-name { font-size: 1.45rem; font-weight: 900; color: var(--gold-light); letter-spacing: 0.3px; }
-  .prayer-time {
-    font-size: 1rem; font-weight: 600;
-    color: rgba(255,255,255,0.7);
-    background: rgba(255,255,255,0.1);
-    padding: 4px 14px; border-radius: 30px; white-space: nowrap;
-  }
-  .prayer-body { background: var(--white); }
+  .container { max-width:720px; margin:0 auto; }
 
-  /* ── Activity Row ── */
+  /* prayer section */
+  .prayer-section { margin-bottom:28px; border-radius:20px; overflow:hidden; box-shadow:var(--shadow); }
+  .prayer-header { background:var(--prayer-bg); padding:16px 22px; display:flex; align-items:center; justify-content:space-between; }
+  .prayer-header .right { display:flex; align-items:center; gap:12px; }
+  .prayer-icon { font-size:1.8rem; }
+  .prayer-name { font-size:1.3rem; font-weight:900; color:var(--gold-light); }
+  .prayer-time { font-size:0.9rem; font-weight:600; color:rgba(255,255,255,0.7); background:rgba(255,255,255,0.1); padding:4px 12px; border-radius:30px; }
+  .prayer-body { background:#fff; }
+
+  /* activity row */
   .activity-row {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    padding: 13px 20px 13px 24px;
-    border-bottom: 1px solid #f0ede8;
-    transition: background 0.2s, opacity 0.3s;
-  }
-  .activity-row:last-child { border-bottom: none; }
-  .activity-row:hover { background: #faf9f6; }
-  .activity-row.done {
-    opacity: 0.45;
-    background: #f5faf7;
-  }
-  .activity-row.done .activity-name {
-    text-decoration: line-through;
-    color: #999;
-  }
-
-  .activity-time {
-    min-width: 100px;
-    font-size: 0.8rem; font-weight: 700;
-    color: var(--green);
-    background: rgba(82,183,136,0.1);
-    padding: 3px 10px; border-radius: 20px;
-    text-align: center; white-space: nowrap;
-  }
-  .activity-time.flexible { background: rgba(212,160,23,0.12); color: var(--gold); }
-  .activity-info { flex: 1; }
-  .activity-name { font-size: 1rem; font-weight: 700; color: var(--text); margin-bottom: 2px; }
-  .activity-type { font-size: 0.78rem; font-weight: 600; color: var(--text-muted); letter-spacing: 0.5px; }
-  .activity-emoji { font-size: 1.4rem; margin-top: 1px; }
-
-  /* ── Done Button ── */
-  .done-btn {
-    flex-shrink: 0;
-    width: 36px; height: 36px;
-    border-radius: 50%;
-    border: none;
-    background: transparent;
-    cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 1.4rem;
-    transition: all 0.2s;
-    line-height: 1;
-  }
-  .done-btn:hover { transform: scale(1.15); }
-
-  /* Type colors */
-  .type-عبادة  { color: var(--green); }
-  .type-دراسة  { color: #4361ee; }
-  .type-تمارين { color: #e63946; }
-  .type-قراءة  { color: #7b2d8b; }
-  .type-تطوير  { color: #f4831f; }
-  .type-راحة   { color: #888; }
-  .type-أكل    { color: #c77dff; }
-  .type-استحمام{ color: #48cae4; }
-
-  /* ── Notes ── */
-  .notes-section {
-    background: var(--white); border-radius: 20px; overflow: hidden;
-    box-shadow: var(--shadow); margin-top: 10px;
-    animation: fadeUp 0.5s ease 0.55s both;
-  }
-  .notes-header {
-    background: linear-gradient(135deg, #1a3a2a, #2d6a4f);
-    padding: 16px 24px; display: flex; align-items: center; gap: 10px;
-  }
-  .notes-header h3 { color: var(--gold-light); font-size: 1.2rem; font-weight: 900; }
-  .notes-body { padding: 16px 24px; }
-  .note-item {
-    display: flex; align-items: flex-start; gap: 12px;
-    padding: 10px 0; border-bottom: 1px solid #f0ede8; font-size: 0.92rem;
-  }
-  .note-item:last-child { border-bottom: none; }
-  .note-icon { font-size: 1.2rem; min-width: 24px; }
-  .note-text { color: var(--text); line-height: 1.6; }
-
-
-
-
-
-  .activity-row{
+    display:flex; align-items:center; gap:12px;
+    padding:13px 18px 13px 22px;
+    border-bottom:1px solid #f0ede8;
     cursor:pointer;
+    transition:background .2s, opacity .3s, transform .15s;
+    user-select:none;
   }
+  .activity-row:last-child { border-bottom:none; }
+  .activity-row:hover { background:#faf9f6; }
+  .activity-row:active { transform:scale(0.985); }
+  .activity-row.done { opacity:.42; background:#f5faf7; }
+  .activity-row.done .activity-name { text-decoration:line-through; color:#999; }
 
-  .activity-row:active{
-    transform:scale(0.98);
+  @keyframes pop {
+    0%   { transform:scale(1); }
+    35%  { transform:scale(1.035); }
+    100% { transform:scale(1); }
   }
+  .activity-row.popping { animation:pop .22s ease; }
 
-  .activity-row.done{
-    animation: taskDone 0.35s ease;
-  }
+  .activity-emoji { font-size:1.4rem; flex-shrink:0; }
+  .activity-info { flex:1; }
+  .activity-name { font-size:0.95rem; font-weight:700; color:var(--text); margin-bottom:2px; }
+  .activity-type { font-size:0.75rem; font-weight:600; color:var(--muted); }
+  .activity-time { min-width:90px; font-size:0.78rem; font-weight:700; color:var(--green); background:rgba(82,183,136,0.1); padding:3px 9px; border-radius:20px; text-align:center; white-space:nowrap; }
+  .activity-time.flex { background:rgba(212,160,23,0.12); color:var(--gold); }
+  .lock-icon { font-size:1.35rem; flex-shrink:0; transition:transform .2s; }
+  .activity-row:hover .lock-icon { transform:scale(1.15); }
 
-  @keyframes taskDone{
-    0%{transform:scale(1);}
-    50%{transform:scale(1.03);}
-    100%{transform:scale(1);}
-  }
+  /* type colors */
+  .t-عبادة { color:#2d6a4f; } .t-دراسة { color:#4361ee; } .t-تمارين { color:#e63946; }
+  .t-تطوير { color:#f4831f; } .t-راحة   { color:#888; }   .t-أكل    { color:#c77dff; }
+  .t-استحمام{ color:#48cae4; }
 
+  /* notes */
+  .notes-section { background:#fff; border-radius:20px; overflow:hidden; box-shadow:var(--shadow); margin-top:10px; }
+  .notes-header { background:linear-gradient(135deg,#1a3a2a,#2d6a4f); padding:14px 22px; display:flex; align-items:center; gap:10px; }
+  .notes-header h3 { color:var(--gold-light); font-size:1.1rem; font-weight:900; }
+  .notes-body { padding:14px 22px; }
+  .note-item { display:flex; align-items:flex-start; gap:10px; padding:9px 0; border-bottom:1px solid #f0ede8; font-size:0.88rem; }
+  .note-item:last-child { border-bottom:none; }
+  .note-icon { font-size:1.1rem; min-width:22px; }
+  .note-text { color:var(--text); line-height:1.6; }
 
-.activity-row{
-    -webkit-tap-highlight-color: transparent;
-    outline:none;
-}
+  /* clear btn */
+  .clear-wrap { max-width:720px; margin:28px auto 0; text-align:center; }
+  .clear-btn { background:none; border:none; font-family:'Cairo',sans-serif; font-size:0.78rem; color:#ccc; cursor:pointer; text-decoration:underline; }
 
-.activity-row:focus,
-.activity-row:active,
-.done-btn:focus,
-.done-btn:active{
-    outline:none;
-}
-
-.done-btn{
-    -webkit-tap-highlight-color: transparent;
-}
-
+  /* popup */
+  #resultPopup { display:none; position:fixed; inset:0; background:rgba(10,25,15,0.9); z-index:999; align-items:center; justify-content:center; padding:24px; }
+  #resultCard { border-radius:28px; max-width:400px; width:100%; padding:34px 26px; text-align:center; font-family:'Cairo',sans-serif; }
+  #resultEmojis { font-size:2.8rem; margin-bottom:12px; letter-spacing:6px; }
+  #resultTitle  { font-size:1.7rem; font-weight:900; margin-bottom:8px; color:#1a3a2a; }
+  #resultSub    { font-size:0.95rem; color:#444; margin-bottom:6px; line-height:1.8; }
+  #resultScore  { font-size:0.82rem; font-weight:700; color:#999; margin-bottom:26px; }
+  #popupCloseBtn { background:#1a3a2a; color:var(--gold-light); border:none; padding:13px 40px; border-radius:50px; font-family:'Cairo',sans-serif; font-size:1rem; font-weight:900; cursor:pointer; width:100%; }
 </style>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 </head>
 <body>
-
 
 <h1 class="page-title">جدول الدراسة <span>اليومي</span></h1>
 <p class="page-subtitle">منظم حسب أوقات الصلاة ✦</p>
 
-<!-- Yesterday banner -->
-<div id="yesterdayBanner" style="display:none; max-width:720px; margin:0 auto 18px; background:#1a3a2a; border-radius:14px; padding:13px 22px; align-items:center; justify-content:center; gap:10px; box-shadow:0 3px 14px rgba(26,58,42,0.18);">
-  <span id="yesterdayText" style="color:#f9c74f; font-size:1rem; font-weight:700; font-family:'Cairo',sans-serif;"></span>
-</div>
+<div id="yesterdayBanner"><span id="yesterdayText"></span></div>
 
-<!-- Chart Toggle Button -->
-<div style="max-width:720px;margin:0 auto 14px;text-align:center;">
-  <button onclick="toggleChart()" id="chartToggleBtn" style="background:none;border:2px solid #2d6a4f;color:#2d6a4f;font-family:'Cairo',sans-serif;font-size:0.9rem;font-weight:700;padding:8px 24px;border-radius:30px;cursor:pointer;transition:all 0.2s;">
-    📊 تابع تقدمك
-  </button>
+<div class="chart-wrap">
+  <button id="chartToggleBtn" onclick="toggleChart()">📊 تابع تقدمك</button>
 </div>
-<div id="chartPanel" style="display:none;max-width:720px;margin:0 auto 20px;background:#fff;border-radius:20px;padding:24px;box-shadow:0 4px 20px rgba(0,0,0,0.1);">
-  <h3 style="font-family:'Cairo',sans-serif;font-weight:900;color:#1a3a2a;margin-bottom:16px;font-size:1.1rem;text-align:center;">آخر 10 أيام 📅</h3>
+<div id="chartPanel">
+  <h3>آخر 10 أيام 📅</h3>
   <canvas id="progressChart" height="200"></canvas>
-  <p id="chartEmpty" style="text-align:center;color:#aaa;font-family:'Cairo',sans-serif;font-size:0.9rem;display:none;">مفيش بيانات لسه — ابدأ يومك! 🌱</p>
+  <p id="chartEmpty" style="text-align:center;color:#aaa;font-size:0.88rem;display:none;">مفيش بيانات لسه 🌱</p>
 </div>
-<div class="progress-wrap" style="max-width:720px;margin:0 auto 6px;">
-  <div class="progress-bar" id="progressBar"></div>
-</div>
-<p class="progress-label" id="progressLabel">0 / 0 مهمة</p>
 
-<div class="container" id="mainContainer">
+<div class="progress-wrap"><div class="progress-bar" id="progressBar"></div></div>
+<p class="progress-label" id="progressLabel">0 / 15 مهمة</p>
 
-  <!-- ══ صلاة الفجر ══ -->
+<div class="container">
+
+  <!-- فجر -->
   <div class="prayer-section">
     <div class="prayer-header">
       <div class="right"><span class="prayer-icon">🕌</span><span class="prayer-name">صلاة الفجر</span></div>
       <span class="prayer-time">4:00 – 4:30</span>
     </div>
-    <div class="prayer-body">
-      <div class="activity-row" id="t1">
+    <div class="prayer-body" id="body-fajr">
+      <div class="activity-row" data-id="t1">
         <span class="activity-emoji">📖</span>
-        <div class="activity-info"><div class="activity-name">سورة يس</div><div class="activity-type type-عبادة">عبادة</div></div>
-        <span class="activity-time flexible">بعد الفجر</span>
-        <button class="done-btn">🔓</button>
+        <div class="activity-info"><div class="activity-name">سورة يس</div><div class="activity-type t-عبادة">عبادة</div></div>
+        <span class="activity-time flex">بعد الفجر</span>
+        <span class="lock-icon">🔓</span>
       </div>
-      <div class="activity-row" id="t2">
+      <div class="activity-row" data-id="t2">
         <span class="activity-emoji">🤲</span>
-        <div class="activity-info"><div class="activity-name">أذكار الصباح</div><div class="activity-type type-عبادة">عبادة</div></div>
-        <span class="activity-time flexible">بعد الفجر</span>
-        <button class="done-btn">🔓</button>
+        <div class="activity-info"><div class="activity-name">أذكار الصباح</div><div class="activity-type t-عبادة">عبادة</div></div>
+        <span class="activity-time flex">بعد الفجر</span>
+        <span class="lock-icon">🔓</span>
       </div>
-      <div class="activity-row" id="t3">
+      <div class="activity-row" data-id="t3">
         <span class="activity-emoji">📗</span>
-        <div class="activity-info"><div class="activity-name">10 صفحات من القرآن (الورد بتاعنا)</div><div class="activity-type type-عبادة">عبادة</div></div>
-        <span class="activity-time flexible">بعد الفجر</span>
-        <button class="done-btn">🔓</button>
+        <div class="activity-info"><div class="activity-name">10 صفحات من القرآن</div><div class="activity-type t-عبادة">عبادة</div></div>
+        <span class="activity-time flex">بعد الفجر</span>
+        <span class="lock-icon">🔓</span>
       </div>
     </div>
   </div>
 
-  <!-- ══ صلاة الضحى ══ -->
+  <!-- ضحى -->
   <div class="prayer-section">
     <div class="prayer-header">
       <div class="right"><span class="prayer-icon">🌅</span><span class="prayer-name">صلاة الضحى</span></div>
-      <span class="prayer-time"> 6:05</span>
+      <span class="prayer-time">من 6:05</span>
     </div>
     <div class="prayer-body">
-      <div class="activity-row" id="t4">
+      <div class="activity-row" data-id="t4">
         <span class="activity-emoji">😴</span>
-        <div class="activity-info"><div class="activity-name">قيلولة</div><div class="activity-type type-راحة">راحة ونوم</div></div>
+        <div class="activity-info"><div class="activity-name">قيلولة</div><div class="activity-type t-راحة">راحة ونوم</div></div>
         <span class="activity-time">6:05 – 8:30</span>
-        <button class="done-btn">🔓</button>
+        <span class="lock-icon">🔓</span>
       </div>
-      <div class="activity-row" id="t5">
+      <div class="activity-row" data-id="t5">
         <span class="activity-emoji">🚿</span>
-        <div class="activity-info"><div class="activity-name">دش ملء بارد</div><div class="activity-type type-استحمام">استحمام</div></div>
+        <div class="activity-info"><div class="activity-name">دش ملء بارد</div><div class="activity-type t-استحمام">استحمام</div></div>
         <span class="activity-time">8:30 – 9:00</span>
-        <button class="done-btn">🔓</button>
+        <span class="lock-icon">🔓</span>
       </div>
-      <div class="activity-row" id="t6">
+      <div class="activity-row" data-id="t6">
         <span class="activity-emoji">🍽️</span>
-        <div class="activity-info"><div class="activity-name">إفطار</div><div class="activity-type type-أكل">أكل</div></div>
+        <div class="activity-info"><div class="activity-name">إفطار</div><div class="activity-type t-أكل">أكل</div></div>
         <span class="activity-time">9:00 – 9:30</span>
-        <button class="done-btn">🔓</button>
+        <span class="lock-icon">🔓</span>
       </div>
-      <div class="activity-row" id="t7">
+      <div class="activity-row" data-id="t7">
         <span class="activity-emoji">💻</span>
-        <div class="activity-info"><div class="activity-name">w3school</div><div class="activity-type type-دراسة">دراسة</div></div>
+        <div class="activity-info"><div class="activity-name">w3school</div><div class="activity-type t-دراسة">دراسة</div></div>
         <span class="activity-time">9:45 – 11:30</span>
-        <button class="done-btn">🔓</button>
+        <span class="lock-icon">🔓</span>
       </div>
-      <div class="activity-row" id="t8">
+      <div class="activity-row" data-id="t8">
         <span class="activity-emoji">🏋️</span>
-        <div class="activity-info"><div class="activity-name">تمارين</div><div class="activity-type type-تمارين">تمارين</div></div>
+        <div class="activity-info"><div class="activity-name">تمارين</div><div class="activity-type t-تمارين">تمارين</div></div>
         <span class="activity-time">11:45 – 12:30</span>
-        <button class="done-btn">🔓</button>
+        <span class="lock-icon">🔓</span>
       </div>
     </div>
   </div>
 
-  <!-- ══ صلاة الظهر ══ -->
+  <!-- ظهر -->
   <div class="prayer-section">
     <div class="prayer-header">
       <div class="right"><span class="prayer-icon">🕌</span><span class="prayer-name">صلاة الظهر</span></div>
       <span class="prayer-time">12:50 – 2:00</span>
     </div>
     <div class="prayer-body">
-      <div class="activity-row" id="t9">
+      <div class="activity-row" data-id="t9">
         <span class="activity-emoji">📖</span>
-        <div class="activity-info"><div class="activity-name">سورة الواقعة</div><div class="activity-type type-عبادة">عبادة</div></div>
-        <span class="activity-time">بعد الظهر</span>
-        <button class="done-btn">🔓</button>
+        <div class="activity-info"><div class="activity-name">سورة الواقعة</div><div class="activity-type t-عبادة">عبادة</div></div>
+        <span class="activity-time flex">بعد الظهر</span>
+        <span class="lock-icon">🔓</span>
       </div>
-      <div class="activity-row" id="t10">
+      <div class="activity-row" data-id="t10">
         <span class="activity-emoji">🎧</span>
-        <div class="activity-info"><div class="activity-name">استماع English (00:30)</div><div class="activity-type type-تطوير">تطوير ذات</div></div>
+        <div class="activity-info"><div class="activity-name">استماع English (00:30)</div><div class="activity-type t-تطوير">تطوير ذات</div></div>
         <span class="activity-time">2:10 – 2:45</span>
-        <button class="done-btn">🔓</button>
+        <span class="lock-icon">🔓</span>
       </div>
-      <div class="activity-row" id="t11">
+      <div class="activity-row" data-id="t11">
         <span class="activity-emoji">📚</span>
-        <div class="activity-info"><div class="activity-name">AUC</div><div class="activity-type type-دراسة">دراسة</div></div>
+        <div class="activity-info"><div class="activity-name">AUC</div><div class="activity-type t-دراسة">دراسة</div></div>
         <span class="activity-time">3:00 – 4:00</span>
-        <button class="done-btn">🔓</button>
+        <span class="lock-icon">🔓</span>
       </div>
     </div>
   </div>
 
-  <!-- ══ صلاة العصر ══ -->
+  <!-- عصر -->
   <div class="prayer-section">
     <div class="prayer-header">
       <div class="right"><span class="prayer-icon">🕌</span><span class="prayer-name">صلاة العصر</span></div>
       <span class="prayer-time">4:30 – 5:30</span>
     </div>
     <div class="prayer-body">
-      <div class="activity-row" id="t12">
+      <div class="activity-row" data-id="t12">
         <span class="activity-emoji">📖</span>
-        <div class="activity-info"><div class="activity-name">سورة الرحمن</div><div class="activity-type type-عبادة">عبادة</div></div>
-        <span class="activity-time">بعد العصر</span>
-        <button class="done-btn">🔓</button>
+        <div class="activity-info"><div class="activity-name">سورة الرحمن</div><div class="activity-type t-عبادة">عبادة</div></div>
+        <span class="activity-time flex">بعد العصر</span>
+        <span class="lock-icon">🔓</span>
       </div>
-      <div class="activity-row" id="t13">
+      <div class="activity-row" data-id="t13">
         <span class="activity-emoji">💬</span>
-        <div class="activity-info"><div class="activity-name">أسئلة Interview</div><div class="activity-type type-تطوير">تطوير ذات</div></div>
+        <div class="activity-info"><div class="activity-name">أسئلة Interview</div><div class="activity-type t-تطوير">تطوير ذات</div></div>
         <span class="activity-time">5:45 – 6:30</span>
-        <button class="done-btn">🔓</button>
+        <span class="lock-icon">🔓</span>
       </div>
     </div>
   </div>
 
-  <!-- ══ صلاة المغرب ══ -->
+  <!-- مغرب -->
   <div class="prayer-section">
     <div class="prayer-header">
       <div class="right"><span class="prayer-icon">🕌</span><span class="prayer-name">صلاة المغرب</span></div>
       <span class="prayer-time">7:45 – 8:30</span>
     </div>
     <div class="prayer-body">
-      <div class="activity-row" id="t14">
+      <div class="activity-row" data-id="t14">
         <span class="activity-emoji">📖</span>
-        <div class="activity-info"><div class="activity-name">سورة الدخان</div><div class="activity-type type-عبادة">عبادة</div></div>
-        <span class="activity-time flexible">بعد المغرب</span>
-        <button class="done-btn">🔓</button>
+        <div class="activity-info"><div class="activity-name">سورة الدخان</div><div class="activity-type t-عبادة">عبادة</div></div>
+        <span class="activity-time flex">بعد المغرب</span>
+        <span class="lock-icon">🔓</span>
       </div>
-      <div class="activity-row" id="t15">
+      <div class="activity-row" data-id="t15">
         <span class="activity-emoji">🤲</span>
-        <div class="activity-info"><div class="activity-name">أذكار المساء</div><div class="activity-type type-عبادة">عبادة</div></div>
-        <span class="activity-time flexible">بعد المغرب</span>
-        <button class="done-btn">🔓</button>
+        <div class="activity-info"><div class="activity-name">أذكار المساء</div><div class="activity-type t-عبادة">عبادة</div></div>
+        <span class="activity-time flex">بعد المغرب</span>
+        <span class="lock-icon">🔓</span>
       </div>
     </div>
   </div>
 
-  <!-- ══ ملاحظات ══ -->
+  <!-- ملاحظات -->
   <div class="notes-section">
     <div class="notes-header"><span>⭐</span><h3>ملاحظات هامة</h3></div>
     <div class="notes-body">
@@ -414,355 +286,250 @@
     </div>
   </div>
 
-</div><!-- /container -->
+</div>
 
-<!-- ══ Result Popup ══ -->
-<div id="resultPopup" style="display:none;position:fixed;inset:0;background:rgba(10,25,15,0.9);z-index:999;align-items:center;justify-content:center;padding:24px;">
-  <div id="resultCard" style="border-radius:28px;max-width:400px;width:100%;padding:36px 28px;text-align:center;font-family:Cairo,sans-serif;">
-    <div id="resultEmojis" style="font-size:3rem;margin-bottom:14px;letter-spacing:6px;"></div>
-    <div id="resultTitle" style="font-size:1.8rem;font-weight:900;margin-bottom:10px;color:#1a3a2a;"></div>
-    <div id="resultSub" style="font-size:1rem;color:#444;margin-bottom:8px;line-height:1.8;"></div>
-    <div id="resultScore" style="font-size:0.85rem;font-weight:700;color:#999;margin-bottom:28px;"></div>
-    <button onclick="closePopup()" style="background:#1a3a2a;color:#f9c74f;border:none;padding:14px 44px;border-radius:50px;font-family:Cairo,sans-serif;font-size:1rem;font-weight:900;cursor:pointer;width:100%;">يلا نبدأ يوم جديد 💪</button>
+<div class="clear-wrap">
+  <button class="clear-btn" onclick="clearAllData()">🗑️ مسح كل البيانات والبدء من الصفر</button>
+</div>
+
+<!-- popup -->
+<div id="resultPopup">
+  <div id="resultCard">
+    <div id="resultEmojis"></div>
+    <div id="resultTitle"></div>
+    <div id="resultSub"></div>
+    <div id="resultScore"></div>
+    <button id="popupCloseBtn" onclick="closePopup()">يلا نبدأ يوم جديد 💪</button>
   </div>
 </div>
 
 <script>
-  const ALL_TASKS = ['t1','t2','t3','t4','t5','t6','t7','t8','t9','t10','t11','t12','t13','t14','t15'];
+const ALL_TASKS = ['t1','t2','t3','t4','t5','t6','t7','t8','t9','t10','t11','t12','t13','t14','t15'];
 
-  function loadState() {
-    try { return JSON.parse(localStorage.getItem('schedule_done') || '[]'); } catch(e) { return []; }
-  }
-  function saveState(d) {
-    try { localStorage.setItem('schedule_done', JSON.stringify(d)); } catch(e){}
-  }
-  function loadYesterday() {
-    try { const s = localStorage.getItem('schedule_yesterday'); return s ? JSON.parse(s) : null; } catch(e) { return null; }
-  }
-  function saveYesterday(count, total) {
-    try { localStorage.setItem('schedule_yesterday', JSON.stringify({count, total})); } catch(e){}
-  }
+// ── Storage ──
+const LS = {
+  get: k => { try { return JSON.parse(localStorage.getItem(k)); } catch(e) { return null; } },
+  set: (k,v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch(e){} },
+  del: k => { try { localStorage.removeItem(k); } catch(e){} }
+};
 
-  function saveToHistory(count, total) {
-    try {
-      const history = JSON.parse(localStorage.getItem('schedule_history') || '[]');
-      history.push({ count, total });
-      if (history.length > 10) history.shift();
-      localStorage.setItem('schedule_history', JSON.stringify(history));
-    } catch(e){}
-  }
+function loadState()     { return LS.get('schedule_done') || []; }
+function saveState(d)    { LS.set('schedule_done', d); }
+function loadYesterday() { return LS.get('schedule_yesterday'); }
+function loadHistory()   { return LS.get('schedule_history') || []; }
 
-  function loadHistory() {
-    try { return JSON.parse(localStorage.getItem('schedule_history') || '[]'); } catch(e) { return []; }
-  }
+function saveYesterday(count, total) { LS.set('schedule_yesterday', {count, total}); }
+function saveToHistory(count, total) {
+  const h = loadHistory();
+  h.push({count, total});
+  if (h.length > 10) h.shift();
+  LS.set('schedule_history', h);
+}
 
-  function toggle(id) {
-    const row = document.getElementById(id);
-    const btn = row.querySelector('.done-btn');
-    const done = loadState();
-    if (row.classList.contains('done')) {
-      row.classList.remove('done');
-      btn.textContent = '🔓';
-      const idx = done.indexOf(id);
-      if (idx > -1) done.splice(idx, 1);
-    } else {
-      row.classList.add('done');
-      btn.textContent = '🔒';
-      if (!done.includes(id)) done.push(id);
+// ── Toggle ──
+document.querySelectorAll('.activity-row').forEach(row => {
+  row.addEventListener('click', () => toggle(row.dataset.id));
+});
+
+function toggle(id) {
+  const row = document.querySelector('[data-id="' + id + '"]');
+  if (!row) return;
+  const lock = row.querySelector('.lock-icon');
+  const done = loadState();
+
+  // pop animation
+  row.classList.remove('popping');
+  void row.offsetWidth;
+  row.classList.add('popping');
+  row.addEventListener('animationend', () => row.classList.remove('popping'), {once: true});
+
+  if (row.classList.contains('done')) {
+    row.classList.remove('done');
+    lock.textContent = '🔓';
+    const idx = done.indexOf(id);
+    if (idx > -1) done.splice(idx, 1);
+  } else {
+    row.classList.add('done');
+    lock.textContent = '🔒';
+    if (!done.includes(id)) done.push(id);
+  }
+  saveState(done);
+  updateProgress();
+}
+
+// ── Progress ──
+function updateProgress() {
+  const done = loadState();
+  const count = done.filter(id => ALL_TASKS.includes(id)).length;
+  const total = ALL_TASKS.length;
+  const pct = Math.round((count / total) * 100);
+  document.getElementById('progressBar').style.width = pct + '%';
+  document.getElementById('progressLabel').textContent = count + ' / ' + total + ' مهمة مكتملة (' + pct + '%)';
+}
+
+// ── Yesterday banner ──
+function renderYesterday() {
+  const y = loadYesterday();
+  const el = document.getElementById('yesterdayBanner');
+  if (!y) { el.style.display = 'none'; return; }
+  const pct = Math.round((y.count / y.total) * 100);
+  const emoji = pct === 100 ? '🏆' : pct >= 70 ? '💪' : pct >= 40 ? '📈' : '😐';
+  el.style.display = 'flex';
+  document.getElementById('yesterdayText').textContent = emoji + ' امبارح — ' + y.count + '/' + y.total + ' (' + pct + '%)';
+}
+
+// ── Result popup ──
+const RESULTS = {
+  better:  [
+    {e:'🔥🚀🔥', t:'جبت أحسن!',      s:'النهارده أنت نسخة أقوى من امبارح.\nاستمر وملكش حد!', bg:'#e8f5e9'},
+    {e:'⬆️💥⬆️', t:'تقدمت!',         s:'الفرق بين امبارح والنهارده ده أنت.\nشايف الفرق؟',    bg:'#e8f5e9'},
+    {e:'🏅✨🏅',  t:'ترقية!',         s:'كل يوم أحسن من اللي قبله — ده الطريق.',              bg:'#e8f5e9'},
+    {e:'💪🎯💪',  t:'ماشي صح!',       s:'الإنجاز النهارده بيثبت إنك قادر تكسر سقفك كل يوم.', bg:'#e8f5e9'},
+  ],
+  worse:   [
+    {e:'😤📉😤',  t:'تخازلت!',        s:'امبارح كنت أحسن.\nإيه اللي حصل النهارده؟',           bg:'#fdecea'},
+    {e:'💤😑💤',  t:'نمت على الجهد!', s:'الأرقام بتحكي — امبارح كانت أقوى.\nبكره هتتعوض؟',   bg:'#fdecea'},
+    {e:'👇😒👇',  t:'نزلت!',          s:'مش بتعاتبك، بس انت عارف إنك قادر على أحسن.',         bg:'#fdecea'},
+    {e:'⚠️😶⚠️', t:'راجع نفسك!',     s:'اللي اتراح النهارده هيتعب بكره.',                    bg:'#fdecea'},
+  ],
+  equal:   [
+    {e:'🤝😐🤝',  t:'نفس الكلام!',    s:'لا تقدم ولا تأخر.\nبكره هتكسر التعادل؟',              bg:'#fff8e1'},
+    {e:'⚖️😑⚖️', t:'Stagnation!',    s:'النهارده طبق الأصل من امبارح.\nفين الخطوة؟',         bg:'#fff8e1'},
+  ],
+  perfect: [
+    {e:'🏆👑🏆',  t:'يوم كامل!',      s:'15/15 — ده مش طبيعي.\nكمّله بكره!',                  bg:'#e3f2fd'},
+    {e:'🌟💯🌟',  t:'100%!',          s:'صعب تعمل كده كل يوم؟ جرب.',                           bg:'#e3f2fd'},
+  ],
+  zero:    [{e:'😴💤😴', t:'ولا حاجة!', s:'اليوم راح من غير ما تعمل حاجة.\nبكره تثبت إنك جاد؟', bg:'#f3f3f3'}],
+  first:   [{e:'🌱👋🌱', t:'أول يوم!',  s:'ده بداية كل حاجة كبيرة.\nشوف بكره تعمل إيه.',         bg:'#f0f4ff'}],
+};
+const pick = arr => arr[Math.floor(Math.random() * arr.length)];
+
+function showResult(todayCount, yesterdayCount) {
+  const total = ALL_TASKS.length;
+  let r;
+  if (yesterdayCount === null)      r = pick(RESULTS.first);
+  else if (todayCount === total)    r = pick(RESULTS.perfect);
+  else if (todayCount === 0)        r = pick(RESULTS.zero);
+  else if (todayCount > yesterdayCount) r = pick(RESULTS.better);
+  else if (todayCount < yesterdayCount) r = pick(RESULTS.worse);
+  else                              r = pick(RESULTS.equal);
+
+  document.getElementById('resultEmojis').textContent = r.e;
+  document.getElementById('resultTitle').textContent  = r.t;
+  document.getElementById('resultSub').innerHTML = r.s.replace(/\n/g,'<br>');
+  document.getElementById('resultCard').style.background = r.bg;
+  const todayPct = Math.round((todayCount/total)*100);
+  let score = 'النهارده: ' + todayCount + '/' + total + ' (' + todayPct + '%)';
+  if (yesterdayCount !== null) score += '   |   امبارح: ' + yesterdayCount + '/' + total + ' (' + Math.round((yesterdayCount/total)*100) + '%)';
+  document.getElementById('resultScore').textContent = score;
+  document.getElementById('resultPopup').style.display = 'flex';
+}
+
+function closePopup() {
+  document.getElementById('resultPopup').style.display = 'none';
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+// ── Auto reset ──
+function doAutoReset() {
+  const done = loadState();
+  const count = done.filter(id => ALL_TASKS.includes(id)).length;
+  const yest = loadYesterday();
+  saveYesterday(count, ALL_TASKS.length);
+  saveToHistory(count, ALL_TASKS.length);
+  const _n = new Date();
+  if (_n.getHours() < 4) _n.setDate(_n.getDate() - 1);
+  LS.set('last_reset_date', _n.toDateString());
+  LS.del('reset_done_today');
+  saveState([]);
+  ALL_TASKS.forEach(id => {
+    const row = document.querySelector('[data-id="' + id + '"]');
+    if (row) { row.classList.remove('done'); row.querySelector('.lock-icon').textContent = '🔓'; }
+  });
+  updateProgress();
+  renderYesterday();
+  showResult(count, yest ? yest.count : null);
+}
+
+function checkDayChange() {
+  const last = LS.get('last_reset_date');
+  const now = new Date();
+  const ref = new Date(now);
+  if (now.getHours() < 4) ref.setDate(ref.getDate() - 1);
+  const dayKey = ref.toDateString();
+  if (last !== dayKey) doAutoReset();
+}
+
+setInterval(() => {
+  const now = new Date();
+  if (now.getHours() === 4 && now.getMinutes() === 0) doAutoReset();
+}, 60000);
+
+// ── Chart ──
+let chartInst = null, chartOpen = false;
+function toggleChart() {
+  chartOpen = !chartOpen;
+  const panel = document.getElementById('chartPanel');
+  const btn   = document.getElementById('chartToggleBtn');
+  panel.style.display = chartOpen ? 'block' : 'none';
+  btn.style.background = chartOpen ? '#2d6a4f' : 'none';
+  btn.style.color      = chartOpen ? '#f9c74f' : '#2d6a4f';
+  if (chartOpen) renderChart();
+}
+function renderChart() {
+  const h = loadHistory();
+  const empty  = document.getElementById('chartEmpty');
+  const canvas = document.getElementById('progressChart');
+  if (!h.length) { empty.style.display='block'; canvas.style.display='none'; return; }
+  empty.style.display='none'; canvas.style.display='block';
+  const labels = h.map((_,i) => 'يوم ' + (i+1));
+  const values = h.map(d => Math.round((d.count/d.total)*100));
+  if (chartInst) chartInst.destroy();
+  chartInst = new Chart(canvas.getContext('2d'), {
+    type: 'line',
+    data: { labels, datasets: [{
+      data: values,
+      borderColor: '#2d6a4f',
+      backgroundColor: 'rgba(82,183,136,0.12)',
+      fill: true, tension: 0.4,
+      pointBackgroundColor: values.map(v => v===100?'#2d6a4f':v>=70?'#52b788':v>=40?'#f9c74f':'#e63946'),
+      pointRadius: 6, pointHoverRadius: 8,
+    }]},
+    options: {
+      responsive: true,
+      plugins: { legend:{display:false}, tooltip:{callbacks:{label:c=>c.raw+'%'}} },
+      scales: {
+        y: { min:0, max:100, ticks:{callback:v=>v+'%', font:{family:'Cairo',size:11}}, grid:{color:'#f0ede8'} },
+        x: { ticks:{font:{family:'Cairo',size:12}}, grid:{display:false} }
+      }
     }
-    saveState(done);
-    updateProgress();
-    checkResetLock();
-  }
+  });
+}
 
-  function updateProgress() {
-    const done = loadState();
-    const total = ALL_TASKS.length;
-    const count = done.filter(id => ALL_TASKS.includes(id)).length;
-    const pct = total > 0 ? Math.round((count / total) * 100) : 0;
-    document.getElementById('progressBar').style.width = pct + '%';
-    document.getElementById('progressLabel').textContent = count + ' / ' + total + ' مهمة مكتملة (' + pct + '%)';
-  }
+// ── Clear all ──
+function clearAllData() {
+  if (!confirm('هتمسح كل البيانات — متأكد؟')) return;
+  ['schedule_done','schedule_yesterday','schedule_history','last_reset_date','reset_done_today'].forEach(k => LS.del(k));
+  ALL_TASKS.forEach(id => {
+    const row = document.querySelector('[data-id="' + id + '"]');
+    if (row) { row.classList.remove('done'); row.querySelector('.lock-icon').textContent = '🔓'; }
+  });
+  updateProgress(); renderYesterday();
+  if (chartOpen) renderChart();
+}
 
-  function renderYesterday() {
-    const y = loadYesterday();
-    const el = document.getElementById('yesterdayBanner');
-    if (!y) { el.style.display = 'none'; return; }
-    const pct = Math.round((y.count / y.total) * 100);
-    const emoji = pct === 100 ? '🏆' : pct >= 70 ? '💪' : pct >= 40 ? '📈' : '😐';
-    el.style.display = 'flex';
-    document.getElementById('yesterdayText').textContent = emoji + ' امبارح — ' + y.count + '/' + y.total + ' مهمة (' + pct + '%)';
-  }
-
-  const RESULTS = {
-    better: [
-      { emojis:'🔥🚀🔥', title:'جبت أحسن!', sub:'النهارده أنت نسخة أقوى من امبارح.\nاستمر وملكش حد!', bg:'#e8f5e9' },
-      { emojis:'⬆️💥⬆️', title:'تقدمت!', sub:'الفرق بين امبارح والنهارده ده أنت.\nشايف الفرق؟', bg:'#e8f5e9' },
-      { emojis:'🏅✨🏅', title:'ترقية!', sub:'كل يوم أحسن من اللي قبله — ده الطريق.', bg:'#e8f5e9' },
-      { emojis:'💪🎯💪', title:'ماشي صح!', sub:'الإنجاز النهارده بيثبت إنك قادر تكسر سقفك كل يوم.', bg:'#e8f5e9' },
-    ],
-    worse: [
-      { emojis:'😤📉😤', title:'تخازلت!', sub:'امبارح كنت أحسن.\nإيه اللي حصل النهارده؟', bg:'#fdecea' },
-      { emojis:'💤😑💤', title:'نمت على الجهد!', sub:'الأرقام بتحكي — امبارح كانت أقوى.\nبكره هتتعوض؟', bg:'#fdecea' },
-      { emojis:'👇😒👇', title:'نزلت!', sub:'مش بتعاتبك، بس انت عارف إنك قادر على أحسن من كده.', bg:'#fdecea' },
-      { emojis:'⚠️😶⚠️', title:'راجع نفسك!', sub:'اللي اتراح النهارده هيتعب بكره.', bg:'#fdecea' },
-    ],
-    equal: [
-      { emojis:'🤝😐🤝', title:'نفس الكلام!', sub:'لا تقدم ولا تأخر.\nبكره هتكسر التعادل ولا هتفضل ثابت؟', bg:'#fff8e1' },
-      { emojis:'⚖️😑⚖️', title:'Stagnation!', sub:'النهارده طبق الأصل من امبارح.\nفين الخطوة اللي هتعديك؟', bg:'#fff8e1' },
-    ],
-    perfect: [
-      { emojis:'🏆👑🏆', title:'يوم كامل!', sub:'15/15 — ده مش طبيعي.\nكمّله بكره وهتبقى لا يُوقف.', bg:'#e3f2fd' },
-      { emojis:'🌟💯🌟', title:'100%!', sub:'صعب تعمل كده كل يوم؟ جرب.', bg:'#e3f2fd' },
-    ],
-    zero: [
-      { emojis:'😴💤😴', title:'ولا حاجة!', sub:'اليوم راح من غير ما تعمل حاجة.\nبكره أول فرصة تثبت إنك مش بالجد.', bg:'#f3f3f3' },
-    ],
-    first: [
-      { emojis:'🌱👋🌱', title:'أول يوم!', sub:'ده بداية كل حاجة كبيرة.\nشوف بكره تعمل إيه.', bg:'#f0f4ff' },
-    ],
-  };
-
-  function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
-
-  function showResult(todayCount, yesterdayCount) {
-    const total = ALL_TASKS.length;
-    const todayPct = Math.round((todayCount / total) * 100);
-    let result, mood;
-    if (yesterdayCount === null) { result = pick(RESULTS.first); mood = 'first'; }
-    else if (todayCount === total) { result = pick(RESULTS.perfect); mood = 'perfect'; }
-    else if (todayCount === 0) { result = pick(RESULTS.zero); mood = 'zero'; }
-    else if (todayCount > yesterdayCount) { result = pick(RESULTS.better); mood = 'better'; }
-    else if (todayCount < yesterdayCount) { result = pick(RESULTS.worse); mood = 'worse'; }
-    else { result = pick(RESULTS.equal); mood = 'equal'; }
-
-    document.getElementById('resultEmojis').textContent = result.emojis;
-    document.getElementById('resultTitle').textContent  = result.title;
-    document.getElementById('resultSub').innerHTML = result.sub.replace(/\n/g,'<br>');
-    document.getElementById('resultCard').style.background = result.bg;
-
-    let scoreText = 'النهارده: ' + todayCount + '/' + total + ' (' + todayPct + '%)';
-    if (yesterdayCount !== null) scoreText += '   |   امبارح: ' + yesterdayCount + '/' + total + ' (' + Math.round((yesterdayCount/total)*100) + '%)';
-    document.getElementById('resultScore').textContent = scoreText;
-    document.getElementById('resultPopup').style.display = 'flex';
-  }
-
-  function closePopup() {
-    document.getElementById('resultPopup').style.display = 'none';
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }
-
-  function resetAll() {
-    const now = new Date();
-    const hour = now.getHours();
-    const done = loadState();
-    const todayCount = done.filter(id => ALL_TASKS.includes(id)).length;
-    const allDone = todayCount === ALL_TASKS.length;
-    const yest = loadYesterday();
-    const yesterdayCount = yest ? yest.count : null;
-    saveYesterday(todayCount, ALL_TASKS.length);
-    saveToHistory(todayCount, ALL_TASKS.length);
-    localStorage.setItem('reset_done_today', 'true');
-    showResult(todayCount, yesterdayCount);
-    saveState([]);
-    ALL_TASKS.forEach(id => {
-      const row = document.getElementById(id);
-      if (row) {
-        row.classList.remove('done');
-        const btn = row.querySelector('.done-btn');
-        if (btn) btn.textContent = '🔓';
-      }
-    });
-    updateProgress();
-    renderYesterday();
-    checkResetLock();
-  }
-
-  function showLocked(hour) {
-    const remaining = 22 - hour;
-    const msgs = [
-      'اليوم لسه مخلصش! 🕙\nالـ Reset متاح بعد الساعة 10 بالليل.',
-      'صبر! 😅\nفاضل ' + remaining + ' ساعة على نهاية اليوم.',
-      'أنهي يومك الأول! 💪\nالـ Reset هيفتح الساعة 10 مساءً.',
-    ];
-    const msg = msgs[Math.floor(Math.random() * msgs.length)];
-    document.getElementById('resultEmojis').textContent = '🔒⏳🔒';
-    document.getElementById('resultTitle').textContent  = 'مش وقته!';
-    document.getElementById('resultSub').innerHTML = msg.replace(/\n/g,'<br>');
-    document.getElementById('resultScore').textContent = 'الـ Reset بيفتح الساعة 10:00 مساءً';
-    document.getElementById('resultCard').style.background = '#f3f0ff';
-    const popup = document.getElementById('resultPopup');
-    popup.style.display = 'flex';
-    // override close button to just close without reset
-    document.querySelector('#resultPopup button').onclick = closePopup;
-  }
-
-  function checkResetLock() { /* no btn */ }
-
-  // re-check every minute + auto-reset at midnight
-  function doAutoReset() {
-    const done = loadState();
-    const todayCount = done.filter(id => ALL_TASKS.includes(id)).length;
-    saveYesterday(todayCount, ALL_TASKS.length);
-    saveToHistory(todayCount, ALL_TASKS.length);
-    localStorage.removeItem('reset_done_today');
-    // save today's date so we know reset already happened
-    localStorage.setItem('last_reset_date', new Date().toDateString());
-    saveState([]);
-    ALL_TASKS.forEach(id => {
-      const row = document.getElementById(id);
-      if (row) {
-        row.classList.remove('done');
-        const btn = row.querySelector('.done-btn');
-        if (btn) btn.textContent = '🔓';
-      }
-    });
-    updateProgress();
-    renderYesterday();
-    checkResetLock();
-  }
-
-  function checkDayChange() {
-    const lastReset = localStorage.getItem('last_reset_date');
-    const today = new Date().toDateString();
-    if (lastReset !== today) {
-      // new day and no reset yet — do it now
-      doAutoReset();
-    }
-  }
-
-  function tickCheck() {
-    checkResetLock();
-    const now = new Date();
-    if (now.getHours() === 4 && now.getMinutes() === 0) {
-      doAutoReset();
-    }
-  }
-
-  setInterval(tickCheck, 60000);
-
-  let chartInstance = null;
-  let chartVisible = false;
-
-  function toggleChart() {
-    const panel = document.getElementById('chartPanel');
-    const btn   = document.getElementById('chartToggleBtn');
-    chartVisible = !chartVisible;
-    panel.style.display = chartVisible ? 'block' : 'none';
-    btn.style.background = chartVisible ? '#2d6a4f' : 'none';
-    btn.style.color       = chartVisible ? '#f9c74f' : '#2d6a4f';
-    if (chartVisible) renderChart();
-  }
-
-  function renderChart() {
-    const history = loadHistory();
-    const empty  = document.getElementById('chartEmpty');
-    const canvas = document.getElementById('progressChart');
-    if (history.length === 0) {
-      empty.style.display  = 'block';
-      canvas.style.display = 'none';
-      return;
-    }
-    empty.style.display  = 'none';
-    canvas.style.display = 'block';
-    const labels = history.map((_, i) => 'يوم ' + (i + 1));
-    const values = history.map(d => Math.round((d.count / d.total) * 100));
-    if (chartInstance) chartInstance.destroy();
-    const ctx = canvas.getContext('2d');
-    chartInstance = new Chart(ctx, {
-      type: 'line',
-      data: {
-        labels,
-        datasets: [{
-          label: 'الإنجاز %',
-          data: values,
-          backgroundColor: values.map(v =>
-            v === 100 ? '#2d6a4f' : v >= 70 ? '#52b788' : v >= 40 ? '#f9c74f' : '#e63946'
-          ),
-          borderColor: '#2d6a4f',
-          backgroundColor: 'rgba(82,183,136,0.15)',
-          fill: true,
-          tension: 0.4,
-          pointBackgroundColor: values.map(v =>
-            v === 100 ? '#2d6a4f' : v >= 70 ? '#52b788' : v >= 40 ? '#f9c74f' : '#e63946'
-          ),
-          pointRadius: 6,
-          pointHoverRadius: 8,
-        }]
-      },
-      options: {
-        responsive: true,
-        plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => c.raw + '%' } } },
-        scales: {
-          y: { min: 0, max: 100, ticks: { callback: v => v + '%', font: { family: 'Cairo', size: 11 } }, grid: { color: '#f0ede8' } },
-          x: { ticks: { font: { family: 'Cairo', size: 12 } }, grid: { display: false } }
-        }
-      }
-    });
-  }
-
-  function clearAllData() {
-    if (!confirm('هتمسح كل البيانات والتاريخ — متأكد؟')) return;
-    localStorage.removeItem('schedule_done');
-    localStorage.removeItem('schedule_yesterday');
-    localStorage.removeItem('schedule_history');
-    localStorage.removeItem('reset_done_today');
-    ALL_TASKS.forEach(id => {
-      const row = document.getElementById(id);
-      if (row) {
-        row.classList.remove('done');
-        const btn = row.querySelector('.done-btn');
-        if (btn) btn.textContent = '🔓';
-      }
-    });
-    updateProgress();
-    renderYesterday();
-    checkResetLock();
-  }
-
-  function seedDemoHistory() {
-    const existing = loadHistory();
-    if (existing.length > 0) return; // لو في بيانات فعلية متحطش demo
-    const demo = [
-      { date: '29/5', count: 8,  total: 15 },
-      { date: '30/5', count: 12, total: 15 },
-      { date: '31/5', count: 10, total: 15 },
-      { date: '1/6',  count: 15, total: 15 },
-      { date: '2/6',  count: 7,  total: 15 },
-      { date: '3/6',  count: 13, total: 15 },
-      { date: '4/6',  count: 11, total: 15 },
-      { date: '5/6',  count: 15, total: 15 },
-      { date: '6/6',  count: 9,  total: 15 },
-      { date: '7/6',  count: 14, total: 15 },
-    ];
-    localStorage.setItem('schedule_history', JSON.stringify(demo));
-  }
-
-  window.onload = function() {
-
-    document.querySelectorAll('.activity-row').forEach(row => {
-      row.addEventListener('click', function () {
-        toggle(this.id);
-      });
-    });
-
-    checkDayChange(); // auto-reset if new day since last open
-    const done = loadState();
-    done.forEach(id => {
-      const row = document.getElementById(id);
-      if (row) {
-        row.classList.add('done');
-        const btn = row.querySelector('.done-btn');
-        if (btn) btn.textContent = '🔒';
-      }
-    });
-    updateProgress();
-    renderYesterday();
-    checkResetLock();
-    seedDemoHistory();
-    
-  };
-
+// ── Init ──
+window.onload = function() {
+  checkDayChange();
+  const done = loadState();
+  done.forEach(id => {
+    const row = document.querySelector('[data-id="' + id + '"]');
+    if (row) { row.classList.add('done'); row.querySelector('.lock-icon').textContent = '🔒'; }
+  });
+  updateProgress();
+  renderYesterday();
+};
 </script>
 </body>
 </html>
